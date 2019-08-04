@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="声明：这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。 简介Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。Vapor侧链采用DPOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="比原链侧链vapor跨链技术分析">
+<meta property="og:url" content="http://yoursite.com/2019/08/04/比原链侧链vapor跨链技术分析/index.html">
+<meta property="og:site_name" content="秋水">
+<meta property="og:description" content="声明：这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。 简介Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。Vapor侧链采用DPOS">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/bystack_vapor/bystack.png">
+<meta property="og:image" content="http://yoursite.com/images/bystack_vapor/bystack2.jpg">
+<meta property="og:updated_time" content="2019-08-04T09:58:04.917Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="比原链侧链vapor跨链技术分析">
+<meta name="twitter:description" content="声明：这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。 简介Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。Vapor侧链采用DPOS">
+<meta name="twitter:image" content="http://yoursite.com/images/bystack_vapor/bystack.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/08/04/比原链侧链vapor跨链技术分析/">
+
+
+
+
+
+  <title>比原链侧链vapor跨链技术分析 | 秋水</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秋水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/04/比原链侧链vapor跨链技术分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="秋水">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/qiushui.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">比原链侧链vapor跨链技术分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-04T17:37:20+08:00">
+                2019-08-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><b><big>声明：</big></b><br>这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。</p>
+<p><b><big>简介</big></b><br>Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。<br><img src="/images/bystack_vapor/bystack.png" alt><br>Vapor侧链采用DPOS和BBFT共识，TPS可以达到数万。此处就分析一下连接Bytom主链和Vapor侧链的跨链模型。</p>
+<p><b><big>主侧链协同工作模型</big></b><br><img src="/images/bystack_vapor/bystack2.jpg" alt><br><b>1.技术细节</b><br>(1)跨链模型架构<br>在Bystack的主侧链协同工作模型中，包括有主链、侧链和Federation。主链为bytom，采用基于对AI 计算友好型PoW（工作量证明）算法，主要负责价值锚定，价值传输和可信存证。侧链为Vapor,采用DPOS+BBFT共识，高TPS满足垂直领域业务。主链和侧链之间的资产流通主要依靠Federation。<br>(2)节点类型<br>跨链模型中的节点主要有收集人、验证人和联邦成员。收集人监控联邦地址，收集交易后生成Claim交易进行跨链。验证人则是侧链的出块人。联邦成员由侧链的用户投票通过选举产生，负责生成新的联邦合约地址。<br>(3)跨链交易流程<br>主链到侧链<br>主链用户将代币发送至联邦合约地址，收集人监控联邦地址，发现跨链交易后生成Claim交易，发送至侧链<br>侧链到主链<br>侧链用户发起提现交易，销毁侧链资产。收集人监控侧链至主链交易，向主链地址发送对应数量资产。最后联邦在侧链生成一笔完成提现的操作交易。</p>
+<p><b>2.代码解析</b><br>跨链代码主要处于federation文件夹下，这里就这部分代码进行一个介绍。</p>
+<p>(1)keeper启动<br>整个跨链的关键在于同步主链和侧链的区块，并处理区块中的跨链交易。这部份代码主要在mainchain_keerper.go和sidechain_keerper.go两部分中，分别对应处理主链和侧链的区块。keeper在Run函数中启动。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">Run</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ticker := time.NewTicker(time.Duration(m.cfg.SyncSeconds) * time.Second)</span><br><span class="line">	<span class="keyword">for</span> ; <span class="literal">true</span>; &lt;-ticker.C &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			isUpdate, err := m.syncBlock()</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				log.WithField(<span class="string">"error"</span>, err).Errorln(<span class="string">"blockKeeper fail on process block"</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> !isUpdate &#123;</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Run函数中首先生成一个定时的Ticker，规定每隔SyncSeconds秒同步一次区块，处理区块中的交易。</p>
+<p>(2)主侧链同步区块<br>Run函数会调用syncBlock函数同步区块。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">syncBlock</span><span class="params">()</span> <span class="params">(<span class="keyword">bool</span>, error)</span></span> &#123;</span><br><span class="line">	chain := &amp;orm.Chain&#123;Name: m.chainName&#125;</span><br><span class="line">	<span class="keyword">if</span> err := m.db.Where(chain).First(chain).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>, errors.Wrap(err, <span class="string">"query chain"</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	height, err := m.node.GetBlockCount()</span><br><span class="line">	<span class="comment">//..</span></span><br><span class="line">	<span class="keyword">if</span> height &lt;= chain.BlockHeight+m.cfg.Confirmations &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>, <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	nextBlockStr, txStatus, err := m.node.GetBlockByHeight(chain.BlockHeight + <span class="number">1</span>)</span><br><span class="line">	<span class="comment">//..</span></span><br><span class="line">	nextBlock := &amp;types.Block&#123;&#125;</span><br><span class="line">	<span class="keyword">if</span> err := nextBlock.UnmarshalText([]<span class="keyword">byte</span>(nextBlockStr)); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>, errors.New(<span class="string">"Unmarshal nextBlock"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> nextBlock.PreviousBlockHash.String() != chain.BlockHash &#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>, ErrInconsistentDB</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := m.tryAttachBlock(chain, nextBlock, txStatus); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数受限会根据chainName从数据库中取出对应的chain。然后利用GetBlockCount函数获得chain的高度。然后进行一个伪确定性的检测。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">height &lt;= chain.BlockHeight+m.cfg.Confirmations</span><br></pre></td></tr></table></figure>
+
+<p>主要是为了判断链上的资产是否已经不可逆。这里Confirmations的值被设为10。如果不进行这个等待不可逆的过程，很可能主链资产跨链后，主链的最长链改变，导致这笔交易没有在主链被打包，而侧链却增加了相应的资产。在此之后，通过GetBlockByHeight函数获得chain的下一个区块。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nextBlockStr, txStatus, err := m.node.GetBlockByHeight(chain.BlockHeight + <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这里必须满足下个区块的上一个区块哈希等于当前chain中的这个头部区块哈希。这也符合区块链的定义。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> nextBlock.PreviousBlockHash.String() != chain.BlockHash &#123;</span><br><span class="line">    <span class="comment">//..</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此之后，通过调用tryAttachBlock函数进一步调用processBlock函数处理区块。</p>
+<p>(3)区块处理<br>processBlock函数会判断区块中交易是否为跨链的deposit或者是withdraw，并分别调用对应的函数去进行处理。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">processBlock</span><span class="params">(chain *orm.Chain, block *types.Block, txStatus *bc.TransactionStatus)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> err := m.processIssuing(block.Transactions); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i, tx := <span class="keyword">range</span> block.Transactions &#123;</span><br><span class="line">		<span class="keyword">if</span> m.isDepositTx(tx) &#123;</span><br><span class="line">			<span class="keyword">if</span> err := m.processDepositTx(chain, block, txStatus, <span class="keyword">uint64</span>(i), tx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> m.isWithdrawalTx(tx) &#123;</span><br><span class="line">			<span class="keyword">if</span> err := m.processWithdrawalTx(chain, block, <span class="keyword">uint64</span>(i), tx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> m.processChainInfo(chain, block)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这的processIssuing函数，它内部会遍历所有交易输入Input的资产类型，也就是AssetID。当这个AssetID不存在的时候，则会去在系统中创建一个对应的资产类型。每个Asset对应的数据结构如下所示。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">m.assetStore.Add(&amp;orm.Asset&#123;</span><br><span class="line">AssetID:           assetID.String(),</span><br><span class="line">IssuanceProgram:   hex.EncodeToString(inp.IssuanceProgram),</span><br><span class="line">VMVersion:         inp.VMVersion,</span><br><span class="line">RawDefinitionByte: hex.EncodeToString(inp.AssetDefinition),</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>在processBlock函数中，还会判断区块中每笔交易是否为跨链交易。主要通过isDepositTx和isWithdrawalTx函数进行判断。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">isDepositTx</span><span class="params">(tx *types.Tx)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> _, output := <span class="keyword">range</span> tx.Outputs &#123;</span><br><span class="line">		<span class="keyword">if</span> bytes.Equal(output.OutputCommitment.ControlProgram, m.fedProg) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">isWithdrawalTx</span><span class="params">(tx *types.Tx)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> _, input := <span class="keyword">range</span> tx.Inputs &#123;</span><br><span class="line">		<span class="keyword">if</span> bytes.Equal(input.ControlProgram(), m.fedProg) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看一下这两个函数，主要还是通过比较交易中的control program这个标识和mainchainKeeper这个结构体中的fedProg进行比较，如果相同则为跨链交易。fedProg在结构体中为一个字节数组。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mainchainKeeper <span class="keyword">struct</span> &#123;</span><br><span class="line">	cfg        *config.Chain</span><br><span class="line">	db         *gorm.DB</span><br><span class="line">	node       *service.Node</span><br><span class="line">	chainName  <span class="keyword">string</span></span><br><span class="line">	assetStore *database.AssetStore</span><br><span class="line">	fedProg    []<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(4)跨链交易(主链到侧链的deposit)处理<br>这部分主要分为主链到侧链的deposit和侧链到主链的withdraw。先看比较复杂的主链到侧链的deposit这部分代码的处理。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">processDepositTx</span><span class="params">(chain *orm.Chain, block *types.Block, txStatus *bc.TransactionStatus, txIndex <span class="keyword">uint64</span>, tx *types.Tx)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="comment">//..</span></span><br><span class="line"></span><br><span class="line">	rawTx, err := tx.MarshalText()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	ormTx := &amp;orm.CrossTransaction&#123;</span><br><span class="line">	      <span class="comment">//..</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err := m.db.Create(ormTx).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> errors.Wrap(err, fmt.Sprintf(<span class="string">"create mainchain DepositTx %s"</span>, tx.ID.String()))</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	statusFail := txStatus.VerifyStatus[txIndex].StatusFail</span><br><span class="line">	crossChainInputs, err := m.getCrossChainReqs(ormTx.ID, tx, statusFail)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, input := <span class="keyword">range</span> crossChainInputs &#123;</span><br><span class="line">		<span class="keyword">if</span> err := m.db.Create(input).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> errors.Wrap(err, fmt.Sprintf(<span class="string">"create DepositFromMainchain input: txid(%s), pos(%d)"</span>, tx.ID.String(), input.SourcePos))</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里它创建了一个跨链交易orm。具体的结构如下。可以看到，这里它的结构体中包括有source和dest的字段。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">ormTx := &amp;orm.CrossTransaction&#123;</span><br><span class="line">		ChainID:              chain.ID,</span><br><span class="line">		SourceBlockHeight:    block.Height,</span><br><span class="line">		SourceBlockTimestamp: block.Timestamp,</span><br><span class="line">		SourceBlockHash:      blockHash.String(),</span><br><span class="line">		SourceTxIndex:        txIndex,</span><br><span class="line">		SourceMuxID:          muxID.String(),</span><br><span class="line">		SourceTxHash:         tx.ID.String(),</span><br><span class="line">		SourceRawTransaction: <span class="keyword">string</span>(rawTx),</span><br><span class="line">		DestBlockHeight:      sql.NullInt64&#123;Valid: <span class="literal">false</span>&#125;,</span><br><span class="line">		DestBlockTimestamp:   sql.NullInt64&#123;Valid: <span class="literal">false</span>&#125;,</span><br><span class="line">		DestBlockHash:        sql.NullString&#123;Valid: <span class="literal">false</span>&#125;,</span><br><span class="line">		DestTxIndex:          sql.NullInt64&#123;Valid: <span class="literal">false</span>&#125;,</span><br><span class="line">		DestTxHash:           sql.NullString&#123;Valid: <span class="literal">false</span>&#125;,</span><br><span class="line">		Status:               common.CrossTxPendingStatus,</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建这笔跨链交易后，它会将交易存入数据库中。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> err := m.db.Create(ormTx).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> errors.Wrap(err, fmt.Sprintf(<span class="string">"create mainchain DepositTx %s"</span>, tx.ID.String()))</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此之后，这里会调用getCrossChainReqs。这个函数内部较为复杂，主要作用就是遍历交易的输出，返回一个跨链交易的请求数组。具体看下这个函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">getCrossChainReqs</span><span class="params">(crossTransactionID <span class="keyword">uint64</span>, tx *types.Tx, statusFail <span class="keyword">bool</span>)</span> <span class="params">([]*orm.CrossTransactionReq, error)</span></span> &#123;</span><br><span class="line">	<span class="comment">//..</span></span><br><span class="line">	<span class="keyword">switch</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> segwit.IsP2WPKHScript(prog):</span><br><span class="line">		<span class="comment">//..</span></span><br><span class="line">	<span class="keyword">case</span> segwit.IsP2WSHScript(prog):</span><br><span class="line">		<span class="comment">//..</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	reqs := []*orm.CrossTransactionReq&#123;&#125;</span><br><span class="line">	<span class="keyword">for</span> i, rawOutput := <span class="keyword">range</span> tx.Outputs &#123;</span><br><span class="line">		<span class="comment">//..</span></span><br><span class="line"></span><br><span class="line">		req := &amp;orm.CrossTransactionReq&#123;</span><br><span class="line">			<span class="comment">//..</span></span><br><span class="line">		&#125;</span><br><span class="line">		reqs = <span class="built_in">append</span>(reqs, req)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> reqs, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很显然，这个地方的交易类型有pay to public key hash 和 pay to script hash这两种。这里会根据不同的交易类型进行一个地址的获取。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> segwit.IsP2WPKHScript(prog):</span><br><span class="line">		<span class="keyword">if</span> pubHash, err := segwit.GetHashFromStandardProg(prog); err == <span class="literal">nil</span> &#123;</span><br><span class="line">			fromAddress = wallet.BuildP2PKHAddress(pubHash, &amp;vaporConsensus.MainNetParams)</span><br><span class="line">			toAddress = wallet.BuildP2PKHAddress(pubHash, &amp;vaporConsensus.VaporNetParams)</span><br><span class="line">		&#125;</span><br><span class="line">	<span class="keyword">case</span> segwit.IsP2WSHScript(prog):</span><br><span class="line">		<span class="keyword">if</span> scriptHash, err := segwit.GetHashFromStandardProg(prog); err == <span class="literal">nil</span> &#123;</span><br><span class="line">			fromAddress = wallet.BuildP2SHAddress(scriptHash, &amp;vaporConsensus.MainNetParams)</span><br><span class="line">			toAddress = wallet.BuildP2SHAddress(scriptHash, &amp;vaporConsensus.VaporNetParams)</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此之后，函数会遍历所有交易的输出，然后创建跨链交易请求，具体的结构如下。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">req := &amp;orm.CrossTransactionReq&#123;</span><br><span class="line">   CrossTransactionID: crossTransactionID,</span><br><span class="line">   SourcePos:          <span class="keyword">uint64</span>(i),</span><br><span class="line">   AssetID:            asset.ID,</span><br><span class="line">   AssetAmount:        rawOutput.OutputCommitment.AssetAmount.Amount,</span><br><span class="line">   Script:             script,</span><br><span class="line">   FromAddress:        fromAddress,</span><br><span class="line">   ToAddress:          toAddress,</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建完所有的跨链交易请求后，返回到processDepositTx中一个crossChainInputs数组中，并存入db。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, input := <span class="keyword">range</span> crossChainInputs &#123;</span><br><span class="line">		<span class="keyword">if</span> err := m.db.Create(input).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> errors.Wrap(err, fmt.Sprintf(<span class="string">"create DepositFromMainchain input: txid(%s), pos(%d)"</span>, tx.ID.String(), input.SourcePos))</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到这里，对主链到侧链的deposit已经处理完毕。</p>
+<p>(5)跨链交易(侧链到主链的withdraw)交易处理<br>这部分比较复杂的逻辑主要在sidechain_keeper.go中的processWithdrawalTx函数中。这部分逻辑和上面主链到侧链的deposit逻辑类似。同样是创建了orm.crossTransaction结构体，唯一的改变就是交易的souce和dest相反。这里就不作具体描述了。</p>
+<p><b>3.跨链优缺点</b></p>
+<ul>
+<li>优点</li>
+(1) 跨链模型、代码较为完整。当前有很多项目使用跨链技术，但是真正实现跨链的寥寥无几。
+(2) 可以根据不同需求实现侧链，满足多种场景
+
+<li>缺点</li>
+(1) 跨链速度较慢，需等待10个区块确认，这在目前Bytom网络上所需时间为30分钟左右
+(2) 相较于comos、polkadot等项目，开发者要开发侧链接入主网成本较大
+(3) 只支持资产跨链，不支持跨链智能合约调用
+</ul>
+
+<p><b>4.跨链模型平行对比Cosmos</b></p>
+<ul><li>可扩展性</li>
+bystack的主测链协同工作模型依靠Federation，未形成通用协议。其他开发者想要接入其跨链网络难度较大。Cosmos采用ibc协议，可扩展性较强。
+<li>代码开发进度</li>
+vapor侧链已经能够实现跨链。Cosmos目前暂无成熟跨链项目出现，ibc协议处于最终开发阶段。
+<li>跨链模型</li>
+vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
+</ul>
+
+<p><b>5.参考建议</b><br>侧链使用bbft共识，非POW的情况下，无需等待10个交易确认，增快跨链速度</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/qiushui.jpg" alt="秋水">
+            
+              <p class="site-author-name" itemprop="name">秋水</p>
+              <p class="site-description motion-element" itemprop="description">闭口治世之贤良，张口乱世之枭雄</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋水</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
