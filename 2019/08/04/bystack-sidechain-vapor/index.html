@@ -288,6 +288,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/04/bystack-sidechain-vapor/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/04/bystack-sidechain-vapor/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -436,8 +446,14 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
           
 
   
-    <div id="gitalk-container"></div>
-
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
 
   
 
@@ -657,6 +673,26 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
 
   
 
+    
+      <script id="dsq-count-scr" src="https://qiushui777.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2019/08/04/bystack-sidechain-vapor/';
+          this.page.identifier = '2019/08/04/bystack-sidechain-vapor/';
+          this.page.title = '比原链侧链vapor跨链技术分析';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://qiushui777.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
 
 
 
@@ -672,7 +708,6 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
 
 
 
-  
 
 
 
@@ -681,25 +716,6 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
 
 
 
-
-
-
-
-  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-
-  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-   <script type="text/javascript">
-        var gitalk = new Gitalk({
-          clientID: 'Iv1.8af260e3e6005173',
-          clientSecret: '62177f9ae1a14bf9c7d16942b741d318be28efa6',
-          repo: 'qiushui777.github.io',
-          owner: 'qiushui777',
-          admin: ['qiushui777'],
-          id: location.pathname,
-          distractionFreeMode: 'true'
-        })
-        gitalk.render('gitalk-container')           
-       </script>
 
 
   
