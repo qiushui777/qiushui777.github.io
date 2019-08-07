@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next mist use-motion" lang>
+<html class="theme-next pisces use-motion" lang>
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="Blockchain,">
 
 
 
@@ -79,20 +79,20 @@
 
 
 
-<meta name="description" content="声明：这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。 简介Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。Vapor侧链采用DPOS">
+<meta name="description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。 ![](/image">
+<meta name="keywords" content="Blockchain">
 <meta property="og:type" content="article">
 <meta property="og:title" content="比原链侧链vapor跨链技术分析">
 <meta property="og:url" content="http://yoursite.com/2019/08/04/bystack-sidechain-vapor/index.html">
 <meta property="og:site_name" content="秋水">
-<meta property="og:description" content="声明：这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。 简介Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。Vapor侧链采用DPOS">
+<meta property="og:description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。 ![](/image">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://yoursite.com/images/bystack_vapor/bystack.png">
 <meta property="og:image" content="http://yoursite.com/images/bystack_vapor/bystack2.jpg">
-<meta property="og:updated_time" content="2019-08-06T13:19:26.624Z">
+<meta property="og:updated_time" content="2019-08-07T12:46:30.180Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="比原链侧链vapor跨链技术分析">
-<meta name="twitter:description" content="声明：这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。 简介Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。Vapor侧链采用DPOS">
-<meta name="twitter:image" content="http://yoursite.com/images/bystack_vapor/bystack.png">
+<meta name="twitter:description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。 ![](/image">
+<meta name="twitter:image" content="http://yoursite.com/images/bystack_vapor/bystack2.jpg">
 
 
 
@@ -100,7 +100,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Mist',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -322,10 +322,24 @@
       
 
       
-        <p><b><big>声明：</big></b><br>这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。</p>
-<p><b><big>简介</big></b><br>Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。<br><img src="/images/bystack_vapor/bystack.png" alt><br>Vapor侧链采用DPOS和BBFT共识，TPS可以达到数万。此处就分析一下连接Bytom主链和Vapor侧链的跨链模型。</p>
-<p><b><big>主侧链协同工作模型</big></b><br><img src="/images/bystack_vapor/bystack2.jpg" alt><br><b>1.技术细节</b><br>(1)跨链模型架构<br>在Bystack的主侧链协同工作模型中，包括有主链、侧链和Federation。主链为bytom，采用基于对AI 计算友好型PoW（工作量证明）算法，主要负责价值锚定，价值传输和可信存证。侧链为Vapor,采用DPOS+BBFT共识，高TPS满足垂直领域业务。主链和侧链之间的资产流通主要依靠Federation。<br>(2)节点类型<br>跨链模型中的节点主要有收集人、验证人和联邦成员。收集人监控联邦地址，收集交易后生成Claim交易进行跨链。验证人则是侧链的出块人。联邦成员由侧链的用户投票通过选举产生，负责生成新的联邦合约地址。<br>(3)跨链交易流程<br>主链到侧链<br>主链用户将代币发送至联邦合约地址，收集人监控联邦地址，发现跨链交易后生成Claim交易，发送至侧链<br>侧链到主链<br>侧链用户发起提现交易，销毁侧链资产。收集人监控侧链至主链交易，向主链地址发送对应数量资产。最后联邦在侧链生成一笔完成提现的操作交易。</p>
-<p><b>2.代码解析</b><br>跨链代码主要处于federation文件夹下，这里就这部分代码进行一个介绍。</p>
+        <h2>声明</h2>
+这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。
+
+<h2>简介</h2>
+Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。
+![](/images/bystack_vapor/bystack.png)
+Vapor侧链采用DPOS和BBFT共识，TPS可以达到数万。此处就分析一下连接Bytom主链和Vapor侧链的跨链模型。
+
+
+<h2>主侧链协同工作模型</h2>
+
+<p><img src="/images/bystack_vapor/bystack2.jpg" alt></p>
+<h3>1.技术细节</h3>
+
+<p>(1)跨链模型架构<br>在Bystack的主侧链协同工作模型中，包括有主链、侧链和Federation。主链为bytom，采用基于对AI 计算友好型PoW（工作量证明）算法，主要负责价值锚定，价值传输和可信存证。侧链为Vapor,采用DPOS+BBFT共识，高TPS满足垂直领域业务。主链和侧链之间的资产流通主要依靠Federation。<br>(2)节点类型<br>跨链模型中的节点主要有收集人、验证人和联邦成员。收集人监控联邦地址，收集交易后生成Claim交易进行跨链。验证人则是侧链的出块人。联邦成员由侧链的用户投票通过选举产生，负责生成新的联邦合约地址。<br>(3)跨链交易流程<br>主链到侧链<br>主链用户将代币发送至联邦合约地址，收集人监控联邦地址，发现跨链交易后生成Claim交易，发送至侧链<br>侧链到主链<br>侧链用户发起提现交易，销毁侧链资产。收集人监控侧链至主链交易，向主链地址发送对应数量资产。最后联邦在侧链生成一笔完成提现的操作交易。</p>
+<h3>2.代码解析</h3>
+跨链代码主要处于federation文件夹下，这里就这部分代码进行一个介绍。
+
 <p>(1)keeper启动<br>整个跨链的关键在于同步主链和侧链的区块，并处理区块中的跨链交易。这部份代码主要在mainchain_keerper.go和sidechain_keerper.go两部分中，分别对应处理主链和侧链的区块。keeper在Run函数中启动。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *mainchainKeeper)</span> <span class="title">Run</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ticker := time.NewTicker(time.Duration(m.cfg.SyncSeconds) * time.Second)</span><br><span class="line">	<span class="keyword">for</span> ; <span class="literal">true</span>; &lt;-ticker.C &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			isUpdate, err := m.syncBlock()</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				log.WithField(<span class="string">"error"</span>, err).Errorln(<span class="string">"blockKeeper fail on process block"</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> !isUpdate &#123;</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -378,7 +392,7 @@
 
 <p>到这里，对主链到侧链的deposit已经处理完毕。</p>
 <p>(5)跨链交易(侧链到主链的withdraw)交易处理<br>这部分比较复杂的逻辑主要在sidechain_keeper.go中的processWithdrawalTx函数中。这部分逻辑和上面主链到侧链的deposit逻辑类似。同样是创建了orm.crossTransaction结构体，唯一的改变就是交易的souce和dest相反。这里就不作具体描述了。</p>
-<p><b>3.跨链优缺点</b></p>
+<h3>3.跨链优缺点</h3>
 <ul>
 <li>优点</li>
 (1) 跨链模型、代码较为完整。当前有很多项目使用跨链技术，但是真正实现跨链的寥寥无几。
@@ -390,7 +404,7 @@
 (3) 只支持资产跨链，不支持跨链智能合约调用
 </ul>
 
-<p><b>4.跨链模型平行对比Cosmos</b></p>
+<h3>4.跨链模型平行对比Cosmos</h3>
 <ul><li>可扩展性</li>
 bystack的主测链协同工作模型依靠Federation，未形成通用协议。其他开发者想要接入其跨链网络难度较大。Cosmos采用ibc协议，可扩展性较强。
 <li>代码开发进度</li>
@@ -399,7 +413,9 @@ vapor侧链已经能够实现跨链。Cosmos目前暂无成熟跨链项目出现
 vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
 </ul>
 
-<p><b>5.参考建议</b><br>侧链使用bbft共识，非POW的情况下，无需等待10个交易确认，增快跨链速度</p>
+<h3>5.参考建议</h3>
+侧链使用bbft共识，非POW的情况下，无需等待10个交易确认，增快跨链速度
+
 
       
     </div>
@@ -414,6 +430,12 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Blockchain/" rel="tag"># Blockchain</a>
+          
+        </div>
       
 
       
@@ -478,8 +500,17 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -505,6 +536,15 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
             
 
             
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
 
           </nav>
 
@@ -523,6 +563,22 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">声明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">主侧链协同工作模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">1.技术细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">2.代码解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">3.跨链优缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">4.跨链模型平行对比Cosmos</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">5.参考建议</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -555,7 +611,7 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
 
 
 
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
@@ -654,6 +710,13 @@ vapor为主侧链模型，Cosmos为Hub-Zone的中继链模型。
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
 
   
   <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
