@@ -79,20 +79,21 @@
 
 
 
-<meta name="description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。 ![](/image">
+<meta name="description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。   Vapor侧链采">
 <meta name="keywords" content="Blockchain">
 <meta property="og:type" content="article">
 <meta property="og:title" content="比原链侧链vapor跨链技术分析">
 <meta property="og:url" content="http://yoursite.com/2019/08/04/bystack-sidechain-vapor/index.html">
 <meta property="og:site_name" content="秋水">
-<meta property="og:description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。 ![](/image">
+<meta property="og:description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。   Vapor侧链采">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/bystack_vapor/bystack.png">
 <meta property="og:image" content="http://yoursite.com/images/bystack_vapor/bystack2.jpg">
-<meta property="og:updated_time" content="2019-08-08T11:54:50.759Z">
+<meta property="og:updated_time" content="2019-08-08T13:58:50.047Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="比原链侧链vapor跨链技术分析">
-<meta name="twitter:description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。 ![](/image">
-<meta name="twitter:image" content="http://yoursite.com/images/bystack_vapor/bystack2.jpg">
+<meta name="twitter:description" content="声明 这篇文章是我利用业余时间为Bytom写的技术分析，首发于Bytom官方技术团体公众号。  简介 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。   Vapor侧链采">
+<meta name="twitter:image" content="http://yoursite.com/images/bystack_vapor/bystack.png">
 
 
 
@@ -337,10 +338,9 @@
 
 <h2>简介</h2>
 Bystack是由比原链团队提出的一主多侧链架构的BaaS平台。其将区块链应用分为三层架构：底层账本层，侧链扩展层，业务适配层。底层账本层为Layer1，即为目前比较成熟的采用POW共识的Bytom公链。侧链扩展层为Layer2，为多侧链层，vapor侧链即处于Layer2。
-![](/images/bystack_vapor/bystack.png)
-Vapor侧链采用DPOS和BBFT共识，TPS可以达到数万。此处就分析一下连接Bytom主链和Vapor侧链的跨链模型。
 
-
+<p><img src="/images/bystack_vapor/bystack.png" alt></p>
+<p>Vapor侧链采用DPOS和BBFT共识，TPS可以达到数万。此处就分析一下连接Bytom主链和Vapor侧链的跨链模型。</p>
 <h2>主侧链协同工作模型</h2>
 
 <p><img src="/images/bystack_vapor/bystack2.jpg" alt></p>
