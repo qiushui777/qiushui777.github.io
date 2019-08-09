@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Quantitative trading,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言 笔者最近开始学习量化投资，先从alpha对冲模型开始，主要通过搜索网上的文章进行研究，整体来说受益匪浅，要感谢各位分享的前辈。但是在阅读这些文章的过程中我发现，当前的一些教程存在着以下的不足之处：  (1).内容过于分散，不够系统化(2).很多都只是利用因子回测，没有进行对冲(3).对于初学者来说并不是非常友好，有些策略甚至无法成功运行或者代码已经过时因而，我这里尝试对这些文章的内容进行总结">
+<meta name="keywords" content="Quantitative trading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Alpha对冲策略基础详解">
+<meta property="og:url" content="http://yoursite.com/2019/08/09/Alpha对冲策略基础详解/index.html">
+<meta property="og:site_name" content="秋水">
+<meta property="og:description" content="前言 笔者最近开始学习量化投资，先从alpha对冲模型开始，主要通过搜索网上的文章进行研究，整体来说受益匪浅，要感谢各位分享的前辈。但是在阅读这些文章的过程中我发现，当前的一些教程存在着以下的不足之处：  (1).内容过于分散，不够系统化(2).很多都只是利用因子回测，没有进行对冲(3).对于初学者来说并不是非常友好，有些策略甚至无法成功运行或者代码已经过时因而，我这里尝试对这些文章的内容进行总结">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/alpha_hedge/1.PNG">
+<meta property="og:image" content="http://yoursite.com/images/alpha_hedge/2.PNG">
+<meta property="og:image" content="http://yoursite.com/images/alpha_hedge/3.PNG">
+<meta property="og:updated_time" content="2019-08-09T12:05:25.324Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Alpha对冲策略基础详解">
+<meta name="twitter:description" content="前言 笔者最近开始学习量化投资，先从alpha对冲模型开始，主要通过搜索网上的文章进行研究，整体来说受益匪浅，要感谢各位分享的前辈。但是在阅读这些文章的过程中我发现，当前的一些教程存在着以下的不足之处：  (1).内容过于分散，不够系统化(2).很多都只是利用因子回测，没有进行对冲(3).对于初学者来说并不是非常友好，有些策略甚至无法成功运行或者代码已经过时因而，我这里尝试对这些文章的内容进行总结">
+<meta name="twitter:image" content="http://yoursite.com/images/alpha_hedge/1.PNG">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/08/09/Alpha对冲策略基础详解/">
+
+
+
+
+
+  <title>Alpha对冲策略基础详解 | 秋水</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秋水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/Alpha对冲策略基础详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="秋水">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/qiushui.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Alpha对冲策略基础详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-09T19:36:22+08:00">
+                2019-08-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/09/Alpha对冲策略基础详解/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/09/Alpha对冲策略基础详解/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2>前言</h2>
+笔者最近开始学习量化投资，先从alpha对冲模型开始，主要通过搜索网上的文章进行研究，整体来说受益匪浅，要感谢各位分享的前辈。但是在阅读这些文章的过程中我发现，当前的一些教程存在着以下的不足之处：
+
+<p>(1).内容过于分散，不够系统化<br>(2).很多都只是利用因子回测，没有进行对冲<br>(3).对于初学者来说并不是非常友好，有些策略甚至无法成功运行或者代码已经过时<br>因而，我这里尝试对这些文章的内容进行总结，加上个人的补充，希望能够进行一个分享，同时对于自身也是一个提高。所有借鉴过的文章和书籍在文末都有列出。本文较为基础，并没有涉及复杂的交易策略。</p>
+<h2>Alpha对冲策略简介</h2>
+<h3>1.Alpha策略</h3>
+Alpha策略最初是由William Sharpe在1964年的著作《投资组合理论与资本市场》中首次提出的，并指出投资者在市场中交易面临系统性风险和非系统性风险，用公式表达如下：
+
+<p>Rs=Rf+βs∗(Rm−Rf)<br>式中，Rs表示股票收益，Rf表示无风险收益率，Rm表示市场收益，βs表示股票相比于市场的波动程度，用以衡量股票的系统性风险。CAPM模型主要表示单个证券或投资组合同系统风险收益率之间的关系，也就是说，单个投资组合的收益率等于无风险收益率与风险溢价之和。<br>由于市场并非完全有效，个股仍存在alpha（超额收益）。 根据Jensen’s alpha的定义：αs=Rs−[Rf+βs∗(Rm−Rf)]，除掉被市场解释的部分，超越市场基准的收益即为个股alpha。</p>
+<h3>2.Alpha对冲策略</h3>
+Alpha对冲策略也被市场中性Alpha策略。通过衍生品来对冲投资组合的系统风险β，锁定超额收益Alpha。因此首先需要寻找稳定的Alpha，构建Alpha组合，进而计算组合的β来对冲风险。Alpha策略成功的关键就是寻找到一个超越基准（具有股指期货等做空工具的基准）的策略。比如，可以构造指数增强组合+沪深 300 指数期货空头策略。这种策略隐含的投资逻辑是择时比较困难，不想承受市场风险。
+
+<h2>多因子策略代码解析</h2>
+网上有很多单因子和多因子策略，在我阅读下来的感受就是依靠个人选择因子组合来实现较高年化收益率。通过学习和研读这些策略的源码，可以帮助我们较快地去掌握策略编写的过程。这里详细介绍下一个利用净利润增长率、权益收益率(ROE)、相对强弱指标(RSI)的多因子策略。这个策略的代码是我在《量化分析师的Python日记【第14天：如何在优矿上做Alpha对冲模型】》这篇文章的代码基础上进行改进的。
+
+<h3>1.基础参数设置</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">end = <span class="string">'2015-08-01'</span>                         <span class="comment"># 回测结束时间</span></span><br><span class="line">benchmark = <span class="string">'HS300'</span>                        <span class="comment"># 策略参考标准</span></span><br><span class="line">universe = set_universe(<span class="string">'HS300'</span>)  <span class="comment"># 证券池，支持股票和基金</span></span><br><span class="line">capital_base = <span class="number">10000000</span>                      <span class="comment"># 起始资金</span></span><br><span class="line">freq = <span class="string">'d'</span>                                 <span class="comment"># 策略类型，'d'表示日间策略使用日线回测，'m'表示日内策略使用分钟线回测</span></span><br><span class="line">refresh_rate = <span class="number">1</span>                           <span class="comment"># 调仓频率，表示执行handle_data的时间间隔，若freq = 'd'时间间隔的单位为交易日，若freq = 'm'时间间隔为分钟</span></span><br></pre></td></tr></table></figure>
+
+<p>(1)benchmark<br>为策略参照标准，即该量化策略回测结果的比较标准，通过比较可以大致看出策略的好坏。这里我们主要和HS300进行比较。这里比较常用的策略包括有SHCI（上证综指）、SH50（上证50）、<br>SH180（上证180）、HS300 （沪深300）和 ZZ500（中证500）。<br>(2)universe<br>universe 指策略回测的证券池，即策略逻辑作用的域，下单与历史数据获取都只限于universe中的证券。这个策略使用的是set_universe函数。实际上uqer上支持用以下三种方式获得政权池：DynamicUniverse、set_universe 和 StockScreener。实际策略的回测中，我们建议用DynamicUniverse的方式来获得证券池。后者用于返回动态证券池实例。在使用板块成分股、指数成分股或行业成分股作为策略的交易对象时，策略框架会根据实际情况调整当天股票池的内容，避免幸存者偏差。</p>
+<h3>2.日期设置</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构建日期列表</span></span><br><span class="line">data=DataAPI.TradeCalGet(exchangeCD=<span class="string">u"XSHG"</span>,beginDate=<span class="string">u"20110801"</span>,endDate=<span class="string">u"20150801"</span>,field=[<span class="string">'calendarDate'</span>,<span class="string">'isMonthEnd'</span>],pandas=<span class="string">"1"</span>)</span><br><span class="line">data = data[data[<span class="string">'isMonthEnd'</span>] == <span class="number">1</span>]</span><br><span class="line">date_list = data[<span class="string">'calendarDate'</span>].values.tolist()</span><br><span class="line"></span><br><span class="line">cal = Calendar(<span class="string">'China.SSE'</span>)</span><br><span class="line">period = Period(<span class="string">'-1B'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这部分比较简单，其实就是获取每个月的最后一天，收集一个日期集，作为交易信号。</p>
+<h3>3.帐户配置</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">accounts = &#123;</span><br><span class="line">    <span class="string">'fantasy_account'</span>: AccountConfig(account_type=<span class="string">'security'</span>, capital_base=<span class="number">10000000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里简单配置了一个股票帐户。事实上，这里可配置的帐户类型还可以有期货、场外基金等。并且可以设置包括滑点在内的多个参数。</p>
+<h3>4.帐户初始化和执行交易指令</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(context)</span>:</span>                   <span class="comment"># 初始化虚拟账户状态</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_data</span><span class="params">(context)</span>:</span>                  <span class="comment"># 每个交易日的买入卖出指令</span></span><br><span class="line">    <span class="comment">#...</span></span><br></pre></td></tr></table></figure>
+
+<p>在uqer上，只需要定义initialize和handle_data这两个函数，系统就会帮助你执行交易策略了，具体的交易逻辑都是写在handle_data当中，也可以自己定义一些函数。</p>
+<h3>5.获取因子</h3>
+(1)净利润增长率
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NetProfitGrowRate =DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday.strftime(<span class="string">'%Y%m%d'</span>),secID=universe,field=<span class="string">u"secID,NetProfitGrowRate"</span>,pandas=<span class="string">"1"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>利用函数DataAPI.MktStockFactorsOneDayGet可以获取到我们想要的因子，这里我们获取到了净利润增长率。打印下结果是这样子的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">           secID  NetProfitGrowRate</span><br><span class="line">0    000001.XSHE             0.4009</span><br><span class="line">1    000002.XSHE             0.4955</span><br><span class="line">2    000063.XSHE            -1.1409</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">NetProfitGrowRate.columns = [<span class="string">'secID'</span>,<span class="string">'NetProfitGrowRate'</span>]</span><br><span class="line">NetProfitGrowRate[<span class="string">'ticker'</span>] = NetProfitGrowRate[<span class="string">'secID'</span>].apply(<span class="keyword">lambda</span> x: x[<span class="number">0</span>:<span class="number">6</span>])</span><br><span class="line">NetProfitGrowRate.set_index(<span class="string">'ticker'</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">ep = NetProfitGrowRate[<span class="string">'NetProfitGrowRate'</span>].dropna().to_dict()</span><br><span class="line">signal_NetProfitGrowRate = standardize(neutralize(winsorize(ep),yesterday.strftime(<span class="string">'%Y%m%d'</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>接下来，对数据进行排序，对数值进行一系列的去极值、标准化等的操作。</p>
+<p>(2)ROE</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ROE = DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday.strftime(<span class="string">'%Y%m%d'</span>),secID=universe,field=<span class="string">u"secID,ROE"</span>,pandas=<span class="string">"1"</span>)</span><br><span class="line">ROE.columns = [<span class="string">'secID'</span>,<span class="string">'ROE'</span>]</span><br><span class="line">ROE[<span class="string">'ticker'</span>] = ROE[<span class="string">'secID'</span>].apply(<span class="keyword">lambda</span> x: x[<span class="number">0</span>:<span class="number">6</span>])</span><br><span class="line">ROE.set_index(<span class="string">'ticker'</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">ep = ROE[<span class="string">'ROE'</span>].dropna().to_dict()</span><br><span class="line">signal_ROE = standardize(neutralize(winsorize(ep),yesterday.strftime(<span class="string">'%Y%m%d'</span>)))  <span class="comment"># 对因子进行去极值、中性化、标准化处理得信号</span></span><br></pre></td></tr></table></figure>
+
+<p>(3)RSI</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">RSI = DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday.strftime(<span class="string">'%Y%m%d'</span>),secID=universe,field=<span class="string">u"secID,RSI"</span>,pandas=<span class="string">"1"</span>)</span><br><span class="line">RSI.columns = [<span class="string">'secID'</span>,<span class="string">'RSI'</span>]</span><br><span class="line">RSI[<span class="string">'ticker'</span>] = RSI[<span class="string">'secID'</span>].apply(<span class="keyword">lambda</span> x: x[<span class="number">0</span>:<span class="number">6</span>])</span><br><span class="line">RSI.set_index(<span class="string">'ticker'</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">ep = RSI[<span class="string">'RSI'</span>].dropna().to_dict()</span><br><span class="line"><span class="keyword">if</span> len(ep) == <span class="number">0</span> :</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">signal_RSI = standardize(neutralize(winsorize(ep),yesterday.strftime(<span class="string">'%Y%m%d'</span>))) <span class="comment"># 对因子进行去极值、中性化、标准化处理得信号</span></span><br></pre></td></tr></table></figure>
+
+<h3>6.构建score矩阵</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">weight = np.array([<span class="number">0.4</span>, <span class="number">0.3</span>, <span class="number">0.3</span>])   <span class="comment">#　信号合成，各因子权重</span></span><br><span class="line">Total_Score = pd.DataFrame(index=RSI.index, columns=[<span class="string">'NetProfitGrowRate'</span>,<span class="string">'ROE'</span>,<span class="string">'RSI'</span>], data=<span class="number">0</span>)</span><br><span class="line">Total_Score[<span class="string">'NetProfitGrowRate'</span>][signal_NetProfitGrowRate.keys()] = signal_NetProfitGrowRate.values()</span><br><span class="line">Total_Score[<span class="string">'ROE'</span>][signal_ROE.keys()] = signal_ROE.values()</span><br><span class="line">Total_Score[<span class="string">'RSI'</span>][signal_RSI.keys()] = signal_RSI.values()</span><br><span class="line">Total_Score[<span class="string">'total_score'</span>] = np.dot(Total_Score, weight)</span><br></pre></td></tr></table></figure>
+
+<p>我们获得了三个因子之后，还需要利用这三个因子选择股票。因而，这里设置了一个权重来选股。通过改变权重，策略也会相应改变，可以试着尝试不同的权重来看看年化收益率的变化。</p>
+<h3>7.获取目标股票</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">total_score = Total_Score[<span class="string">'total_score'</span>].to_dict()</span><br><span class="line">wts = simple_long_only(total_score, today.strftime(<span class="string">'%Y%m%d'</span>))   <span class="comment"># 调用组合构建函数，组合构建综合考虑各因子大小，行业配置等因素，默认返回前30%的股票</span></span><br></pre></td></tr></table></figure>
+
+<p>这里主要用到的是simple_long_only这个函数，返回了利用total_score获得的排名前30%的股票。</p>
+<h3>8.获取目标股票的SecID</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">RSI[<span class="string">'wts'</span>] = np.nan</span><br><span class="line">RSI[<span class="string">'wts'</span>][wts.keys()] = wts.values()</span><br><span class="line">RSI = RSI[~np.isnan(RSI[<span class="string">'wts'</span>])]</span><br><span class="line">RSI.set_index(<span class="string">'secID'</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">RSI.drop(<span class="string">'RSI'</span>, axis=<span class="number">1</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">buy_list = RSI.index</span><br></pre></td></tr></table></figure>
+
+<p>这里的操作就是获取目标股票的SecID,后面买操作的时候需要。这里是利用RSI这个DataFrame来进行操作的。</p>
+<h3>9.买卖股票</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先卖出</span></span><br><span class="line">sell_list = account.get_positions()</span><br><span class="line"><span class="keyword">for</span> stk <span class="keyword">in</span> sell_list:</span><br><span class="line">    order_to(stk, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再买入</span></span><br><span class="line"><span class="keyword">for</span> stk <span class="keyword">in</span> buy_list:</span><br><span class="line">    account.order_pct_to(stk, <span class="number">1.0</span>/len(buy_list))</span><br></pre></td></tr></table></figure>
+
+<p>这里的策略很简单，直接全卖了，然后再把buylist里面的股票买一遍。看到这里的话，整个策略的逻辑已经非常清晰了，如果有其他的策略，可以在这个模板的基础上进行修改。我这里附上整个完整的策略。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> CAL.PyCAL <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">end = <span class="string">'2015-08-01'</span>                         <span class="comment"># 回测结束时间</span></span><br><span class="line">benchmark = <span class="string">'HS300'</span>                        <span class="comment"># 策略参考标准</span></span><br><span class="line">universe = set_universe(<span class="string">'HS300'</span>)  <span class="comment"># 证券池，支持股票和基金</span></span><br><span class="line">capital_base = <span class="number">10000000</span>                      <span class="comment"># 起始资金</span></span><br><span class="line">freq = <span class="string">'d'</span>                                 <span class="comment"># 策略类型，'d'表示日间策略使用日线回测，'m'表示日内策略使用分钟线回测</span></span><br><span class="line">refresh_rate = <span class="number">1</span>                           <span class="comment"># 调仓频率，表示执行handle_data的时间间隔，若freq = 'd'时间间隔的单位为交易日，若freq = 'm'时间间隔为分钟</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建日期列表</span></span><br><span class="line">data=DataAPI.TradeCalGet(exchangeCD=<span class="string">u"XSHG"</span>,beginDate=<span class="string">u"20110801"</span>,endDate=<span class="string">u"20150801"</span>,field=[<span class="string">'calendarDate'</span>,<span class="string">'isMonthEnd'</span>],pandas=<span class="string">"1"</span>)</span><br><span class="line">data = data[data[<span class="string">'isMonthEnd'</span>] == <span class="number">1</span>]</span><br><span class="line">date_list = data[<span class="string">'calendarDate'</span>].values.tolist()</span><br><span class="line">cal = Calendar(<span class="string">'China.SSE'</span>)</span><br><span class="line">period = Period(<span class="string">'-1B'</span>)</span><br><span class="line"></span><br><span class="line">accounts = &#123;</span><br><span class="line">    <span class="string">'fantasy_account'</span>: AccountConfig(account_type=<span class="string">'security'</span>, capital_base=<span class="number">10000000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(context)</span>:</span>                   <span class="comment"># 初始化虚拟账户状态</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_data</span><span class="params">(context)</span>:</span>                  <span class="comment"># 每个交易日的买入卖出指令</span></span><br><span class="line">    </span><br><span class="line">    account = context.get_account(<span class="string">'fantasy_account'</span>)</span><br><span class="line">    today = Date.fromDateTime(context.current_date)</span><br><span class="line">    yesterday = context.previous_date</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> yesterday.strftime(<span class="string">"%Y-%m-%d"</span>) <span class="keyword">in</span> date_list:</span><br><span class="line">        <span class="comment"># 净利润增长率</span></span><br><span class="line">        NetProfitGrowRate =DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday.strftime(<span class="string">'%Y%m%d'</span>),secID=universe,field=<span class="string">u"secID,NetProfitGrowRate"</span>,pandas=<span class="string">"1"</span>)</span><br><span class="line">        NetProfitGrowRate.columns = [<span class="string">'secID'</span>,<span class="string">'NetProfitGrowRate'</span>]</span><br><span class="line">        NetProfitGrowRate[<span class="string">'ticker'</span>] = NetProfitGrowRate[<span class="string">'secID'</span>].apply(<span class="keyword">lambda</span> x: x[<span class="number">0</span>:<span class="number">6</span>])</span><br><span class="line">        NetProfitGrowRate.set_index(<span class="string">'ticker'</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">        ep = NetProfitGrowRate[<span class="string">'NetProfitGrowRate'</span>].dropna().to_dict()</span><br><span class="line">        signal_NetProfitGrowRate = standardize(neutralize(winsorize(ep),yesterday.strftime(<span class="string">'%Y%m%d'</span>)))  <span class="comment"># 对因子进行去极值、中性化、标准化处理得信号</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 权益收益率</span></span><br><span class="line">        ROE = DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday.strftime(<span class="string">'%Y%m%d'</span>),secID=universe,field=<span class="string">u"secID,ROE"</span>,pandas=<span class="string">"1"</span>)</span><br><span class="line">        ROE.columns = [<span class="string">'secID'</span>,<span class="string">'ROE'</span>]</span><br><span class="line">        ROE[<span class="string">'ticker'</span>] = ROE[<span class="string">'secID'</span>].apply(<span class="keyword">lambda</span> x: x[<span class="number">0</span>:<span class="number">6</span>])</span><br><span class="line">        ROE.set_index(<span class="string">'ticker'</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">        ep = ROE[<span class="string">'ROE'</span>].dropna().to_dict()</span><br><span class="line">        signal_ROE = standardize(neutralize(winsorize(ep),yesterday.strftime(<span class="string">'%Y%m%d'</span>)))  <span class="comment"># 对因子进行去极值、中性化、标准化处理得信号</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># RSI</span></span><br><span class="line">        RSI = DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday.strftime(<span class="string">'%Y%m%d'</span>),secID=universe,field=<span class="string">u"secID,RSI"</span>,pandas=<span class="string">"1"</span>)</span><br><span class="line">        RSI.columns = [<span class="string">'secID'</span>,<span class="string">'RSI'</span>]</span><br><span class="line">        RSI[<span class="string">'ticker'</span>] = RSI[<span class="string">'secID'</span>].apply(<span class="keyword">lambda</span> x: x[<span class="number">0</span>:<span class="number">6</span>])</span><br><span class="line">        RSI.set_index(<span class="string">'ticker'</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">        ep = RSI[<span class="string">'RSI'</span>].dropna().to_dict()</span><br><span class="line">        <span class="keyword">if</span> len(ep) == <span class="number">0</span> :</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        signal_RSI = standardize(neutralize(winsorize(ep),yesterday.strftime(<span class="string">'%Y%m%d'</span>))) <span class="comment"># 对因子进行去极值、中性化、标准化处理得信号</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 构建组合score矩阵</span></span><br><span class="line">        weight = np.array([<span class="number">0.4</span>, <span class="number">0.3</span>, <span class="number">0.3</span>])   <span class="comment">#　信号合成，各因子权重</span></span><br><span class="line">        Total_Score = pd.DataFrame(index=RSI.index, columns=[<span class="string">'NetProfitGrowRate'</span>,<span class="string">'ROE'</span>,<span class="string">'RSI'</span>], data=<span class="number">0</span>)</span><br><span class="line">        Total_Score[<span class="string">'NetProfitGrowRate'</span>][signal_NetProfitGrowRate.keys()] = signal_NetProfitGrowRate.values()</span><br><span class="line">        Total_Score[<span class="string">'ROE'</span>][signal_ROE.keys()] = signal_ROE.values()</span><br><span class="line">        Total_Score[<span class="string">'RSI'</span>][signal_RSI.keys()] = signal_RSI.values()</span><br><span class="line">        Total_Score[<span class="string">'total_score'</span>] = np.dot(Total_Score, weight)</span><br><span class="line"></span><br><span class="line">        total_score = Total_Score[<span class="string">'total_score'</span>].to_dict()</span><br><span class="line">        wts = simple_long_only(total_score, today.strftime(<span class="string">'%Y%m%d'</span>))   <span class="comment"># 调用组合构建函数，组合构建综合考虑各因子大小，行业配置等因素，默认返回前30%的股票</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 找载体，将ticker转化为secID</span></span><br><span class="line">        RSI[<span class="string">'wts'</span>] = np.nan</span><br><span class="line">        RSI[<span class="string">'wts'</span>][wts.keys()] = wts.values()</span><br><span class="line">        RSI = RSI[~np.isnan(RSI[<span class="string">'wts'</span>])]</span><br><span class="line">        RSI.set_index(<span class="string">'secID'</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">        RSI.drop(<span class="string">'RSI'</span>, axis=<span class="number">1</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">        buy_list = RSI.index</span><br><span class="line">        print(type(RSI))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 先卖出</span></span><br><span class="line">        sell_list = account.get_positions()</span><br><span class="line">        <span class="keyword">for</span> stk <span class="keyword">in</span> sell_list:</span><br><span class="line">            order_to(stk, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 再买入</span></span><br><span class="line">        <span class="keyword">for</span> stk <span class="keyword">in</span> buy_list:</span><br><span class="line">            account.order_pct_to(stk, <span class="number">1.0</span>/len(buy_list))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+
+<p>策略的回测结果如图。<br><img src="/images/alpha_hedge/1.PNG" alt></p>
+<h2>Alpha对冲策略</h2>
+在了解了如何利用多因子策略后，我们就可以加入购买期货合约的部分来实现一个对冲了。而2015年的大涨和大跌可以作为我们进行检验回测的时间段。下面用来讲解策略的代码主要来自于文章《多因子股票-股指期货 多空对冲策略 小白解读》。讲解的内容则主要是期货部分的代码。
+<h3>1.帐户设置</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">accounts = &#123;</span><br><span class="line">    <span class="string">'stock_account'</span>: AccountConfig(account_type=<span class="string">'security'</span>, capital_base=capital_base, commission=stock_commission, slippage=slippage),</span><br><span class="line">    <span class="string">'futures_account'</span>: AccountConfig(account_type=<span class="string">'futures'</span>, capital_base=capital_base, commission=futures_commission, slippage=slippage)</span><br><span class="line">&#125; <span class="comment">#设定股票和股指期货账户</span></span><br></pre></td></tr></table></figure>
+
+<p>帐户这里多了一个期货帐户，主要是为了后面增加期货交易的逻辑。</p>
+<h3>2.获取当前合约持仓状态</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">future_account = context.get_account(<span class="string">"futures_account"</span>)</span><br><span class="line">contract_current_month = context.get_symbol(<span class="string">'IFL0'</span>)</span><br><span class="line">contract_holding = context.contract_holding</span><br><span class="line"> <span class="keyword">if</span> <span class="keyword">not</span> contract_holding:</span><br><span class="line">        contract_holding = contract_current_month</span><br></pre></td></tr></table></figure>
+
+<p>这里IFL0代表的是当月合约。如果当前没有持仓合约，那么就准备购买当月主力合约。</p>
+<h3>3.对持有合约进行处理</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">last_trade_date = get_asset(contract_holding).last_trade_date </span><br><span class="line">days_to_expire = (last_trade_date- context.current_date).days</span><br></pre></td></tr></table></figure>
+
+<p>先取得合约的最后交割日，计算下离今天还有多久。因为在交割日前波动大，为了降低风险，我们选择在交割日前3天平仓。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> days_to_expire == <span class="number">3</span>:   <span class="comment">#接近交割日股指期货一般波动异常，所以一般要提前几天交割     </span></span><br><span class="line">            log.info(<span class="string">u'距离%s到期，还有%s天'</span> % (contract_holding, days_to_expire))</span><br><span class="line">            contract_next_month = context.get_symbol(<span class="string">'IFL1'</span>) <span class="comment">#取次月合约的代码，这里是'IF1502'</span></span><br><span class="line"></span><br><span class="line">            futures_position = future_account.get_position(contract_holding) <span class="comment">#取当月合约的持仓量   </span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> futures_position: <span class="comment">#不空，即有持仓</span></span><br><span class="line">                current_holding = futures_position.short_amount <span class="comment">#将空单持仓量赋给当前持仓current_holding</span></span><br><span class="line">                log.info(<span class="string">u'移仓换月。[平仓旧合约:%s,开仓新合约:%s,手数:%s]'</span> % (contract_holding, contract_next_month, int(current_holding)))</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> current_holding == <span class="number">0</span>: <span class="comment">#没有持仓，则不用进行下面的换仓动作</span></span><br><span class="line">                    <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">                future_account.order(contract_holding, current_holding, <span class="string">"close"</span>) <span class="comment">#将当月合约以收盘价进行平仓（以close价买入），没有考虑滑点？</span></span><br><span class="line">                future_account.order(contract_next_month, <span class="number">-1</span> * current_holding, <span class="string">"open"</span>) <span class="comment">#以开盘价重新在下月合约重新开仓（以open价卖出current_holding量），持仓量保持不变</span></span><br><span class="line">                context.contract_holding = contract_next_month <span class="comment">#在context中修改当前持仓的属性，即当月持仓变为'IF1502'</span></span><br><span class="line">                <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来的操作比较简单，如果快到交割日了，获取当前持仓量，全平后以相同的数量买进下月的期货。</p>
+<h3>4.对当前持有股票进行对冲</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">contract_current_month = context.get_symbol(<span class="string">'IFL0'</span>)</span><br><span class="line">multiplier = get_asset(contract_current_month).multiplier <span class="comment"># get_asset('IF1501')</span></span><br><span class="line">futures_price = context.current_price(contract_current_month) <span class="comment">#取合约价格</span></span><br><span class="line">total_hedging_amount = int(stock_positions_value / futures_price / multiplier) <span class="comment">#由股票市值折算成等量的股指市值，算出股指期货等量的手数，实际上是对冲，是低风险的策略</span></span><br><span class="line">log.info(<span class="string">u'%s没有持仓，准备建仓。空头开仓%s手'</span> % (contract_current_month, contract_holding))</span><br><span class="line">future_account.order(contract_current_month, <span class="number">-1</span> * total_hedging_amount, <span class="string">"open"</span>) <span class="comment">#建立空头仓位，即卖出开仓</span></span><br><span class="line">context.contract_holding = contract_current_month <span class="comment">#登记持有的仓位</span></span><br><span class="line">print(context.contract_holding)</span><br></pre></td></tr></table></figure>
+
+<p>如果当前的股票没有对冲，那么就购买期货合约进行对冲。这里需要先获取一个合约乘数，计算出要购买的合约的数量，也就是total_hedging_amount。然后购买相应数量的期货合约。</p>
+<h3>5.对期货进行调仓</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">total_hedging_amount = int(stock_positions_value / futures_price / multiplier) <span class="comment">#计算对冲总数量</span></span><br><span class="line">hedging_amount_diff = total_hedging_amount - futures_position.short_amount <span class="comment">#由于市场变化，造成原对冲的手数不足，需要计算补充差量</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调仓阈值，可以适当放大，防止反复调仓</span></span><br><span class="line">threshold = <span class="number">2</span></span><br><span class="line"><span class="keyword">if</span> hedging_amount_diff &gt;= threshold:</span><br><span class="line">    log.info(<span class="string">u'空头调仓。[合约名:%s,当前空头手数:%s,目标空头手数:%s]'</span> % (contract_holding, int(futures_position.short_amount), total_hedging_amount))</span><br><span class="line">    <span class="comment"># 多开空仓</span></span><br><span class="line">    future_account.order(contract_holding, <span class="number">-1</span> * int(hedging_amount_diff), <span class="string">"open"</span>) <span class="comment">#对差值补充开空仓</span></span><br><span class="line"><span class="keyword">elif</span> hedging_amount_diff &lt;= -threshold:</span><br><span class="line">    log.info(<span class="string">u'空头调仓。[合约名:%s,当前空头手数:%s,目标空头手数:%s]'</span> % (contract_holding, int(futures_position.short_amount), total_hedging_amount))</span><br><span class="line">    <span class="comment"># 平掉部分空仓</span></span><br><span class="line">    future_account.order(contract_holding, int(abs(hedging_amount_diff)), <span class="string">"close"</span>) <span class="comment">#差值为负，表明股票的市值低于期货的市值，需要平掉相应的期货差额手数</span></span><br></pre></td></tr></table></figure>
+
+<p>在当前有持仓的情况下，判断是否需要调整。和上面一样，计算出一个total_hedging_amount，并计算出和当前持仓量的差异，如果差异大过阈值2，就需要进行一个调整。比较尴尬的是，这个策略在某书籍中给出的时候没有测量15年全年的收益，而是测了半年，所以书中的收益率很高，在我将事件设置为全年后，模型的年化收益率感人。<br><img src="/images/alpha_hedge/2.PNG" alt></p>
+<p>整体的期货逻辑就是这样子，原文对每行代码有详细解读，如果想继续深入看的可以看看这个链接的内容：<br><a href="https://uqer.io/v3/community/share/594aa088fba7a70057b0c0e6" target="_blank" rel="noopener">https://uqer.io/v3/community/share/594aa088fba7a70057b0c0e6</a></p>
+<h2>Fama-French三因子模型对冲</h2>
+
+<p>Fama和French 1993年指出可以建立一个三因子模型来解释股票回报率。模型认为，一个投资组合(包括单个股票)的超额回报率可由它对三个因子的暴露来解释，这三个因子是：市场资产组合(Rm− Rf)、市值因子(SMB)、账面市值比因子(HML)。<br>β、si和hi分别是三个因子的系数，回归模型表示如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Rit− Rft= ai+ βi(Rmt− Rft) + SiSMBt+ hiHMIt+ εit</span><br></pre></td></tr></table></figure>
+
+<p>在文章 破解Alpha对冲策略——观《量化分析师Python日记第14天》有感 的最后，作者给出了这个三因子模型，实际上作者选择的是PE 和 LFLO这两个因子来选股。整个模型获得了不错的年化收益率。于是我大胆想象，如果将这个三因子模型放到对冲模型中，会有怎样的效果。事实就是，在收益率在上面的对冲模型的基础上进一步下跌了。如果有兴趣的朋友可以试下我下面的代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> CAL.PyCAL <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> DataFrame</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">start = <span class="string">'2015-01-01'</span>                                 <span class="comment"># 回测起始时间</span></span><br><span class="line">end = <span class="string">'2015-12-31'</span>                                <span class="comment"># 回测结束时间</span></span><br><span class="line">benchmark = <span class="string">'HS300'</span>                               <span class="comment"># 策略参考标准</span></span><br><span class="line">universe = DynamicUniverse(<span class="string">'HS300'</span>) + [<span class="string">'IFL0'</span>, <span class="string">'IFL1'</span>]       <span class="comment"># 证券池，支持股票和基金</span></span><br><span class="line">capital_base = <span class="number">10000000</span>                        <span class="comment"># 起始资金</span></span><br><span class="line">freq = <span class="string">'d'</span>                                         <span class="comment"># 策略类型，'d'表示日间策略使用日线回测，'m'表示日内策略使用分钟线回测</span></span><br><span class="line">refresh_rate = <span class="number">1</span></span><br><span class="line">cal = Calendar(<span class="string">'China.SSE'</span>)</span><br><span class="line">period = Period(<span class="string">'-1B'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 账户初始化配置</span></span><br><span class="line">stock_commission = Commission(buycost=<span class="number">0.0</span>, sellcost=<span class="number">0.0</span>, unit=<span class="string">'perValue'</span>)</span><br><span class="line">futures_commission = Commission(buycost=<span class="number">0.0</span>, sellcost=<span class="number">0.0</span>, unit=<span class="string">'perValue'</span>)</span><br><span class="line">slippage = Slippage(value=<span class="number">0</span>, unit=<span class="string">'perValue'</span>)</span><br><span class="line"></span><br><span class="line">accounts = &#123;</span><br><span class="line">    <span class="string">'stock_account'</span>: AccountConfig(account_type=<span class="string">'security'</span>, capital_base=capital_base, commission=stock_commission, slippage=slippage),</span><br><span class="line">    <span class="string">'futures_account'</span>: AccountConfig(account_type=<span class="string">'futures'</span>, capital_base=capital_base, commission=futures_commission, slippage=slippage)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#策略算法</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(context)</span>:</span>                   </span><br><span class="line">    context.signal_generator = SignalGenerator(Signal(<span class="string">'NetProfitGrowRate'</span>), Signal(<span class="string">'ROE'</span>), Signal(<span class="string">'RSI'</span>))</span><br><span class="line">    context.need_to_switch_position = <span class="literal">False</span></span><br><span class="line">    context.contract_holding = <span class="string">''</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_data</span><span class="params">(context)</span>:</span>             </span><br><span class="line">    <span class="comment"># log.info(context.current_date)</span></span><br><span class="line">    universe = context.get_universe(exclude_halt=<span class="literal">True</span>)</span><br><span class="line">    </span><br><span class="line">    yesterday = context.previous_date    </span><br><span class="line"></span><br><span class="line">    Factor1 = DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday,secID=universe[:<span class="number">400</span>],field=[<span class="string">'secID'</span>,<span class="string">'PE'</span>,<span class="string">'LFLO'</span>],pandas=<span class="string">"1"</span>)</span><br><span class="line">    Factor2 = DataAPI.MktStockFactorsOneDayGet(tradeDate=yesterday,secID=universe[<span class="number">400</span>:],field=[<span class="string">'secID'</span>,<span class="string">'PE'</span>,<span class="string">'LFLO'</span>],pandas=<span class="string">"1"</span>)</span><br><span class="line">    Factor = pd.concat([Factor1, Factor2])</span><br><span class="line">    Factor[<span class="string">'ticker'</span>] = Factor[<span class="string">'secID'</span>].apply(<span class="keyword">lambda</span> x: x[<span class="number">0</span>:<span class="number">6</span>])</span><br><span class="line">    Factor.set_index(<span class="string">'ticker'</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">        </span><br><span class="line">    <span class="comment"># 市盈率PE</span></span><br><span class="line">    Factor[<span class="string">'PE'</span>] = <span class="number">1.0</span> / Factor[<span class="string">'PE'</span>]  <span class="comment"># 低市盈率</span></span><br><span class="line">    factor = Factor[<span class="string">'PE'</span>].dropna().to_dict()</span><br><span class="line">    signal_PE = standardize(neutralize(winsorize(factor),yesterday))   <span class="comment"># 因子处理</span></span><br><span class="line">        </span><br><span class="line">    <span class="comment"># 对数流通市值LFLO</span></span><br><span class="line">    Factor[<span class="string">'LFLO'</span>] = <span class="number">1.0</span> / Factor[<span class="string">'LFLO'</span>]  <span class="comment"># 低市值</span></span><br><span class="line">    factor = Factor[<span class="string">'LFLO'</span>].dropna().to_dict()</span><br><span class="line">    signal_LFLO = standardize(neutralize(winsorize(factor),yesterday))  <span class="comment"># 因子处理</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 构建组合score矩阵</span></span><br><span class="line">    Total_Score = pd.DataFrame(index=Factor.index, columns=[<span class="string">'PE'</span>,<span class="string">'LFLO'</span>], data=<span class="number">0</span>)</span><br><span class="line">    Total_Score = Total_Score.loc[~Total_Score.index.duplicated(keep=<span class="string">'first'</span>)]</span><br><span class="line">    Total_Score[<span class="string">'PE'</span>][signal_PE.keys()] = signal_PE.values()</span><br><span class="line">    Total_Score[<span class="string">'LFLO'</span>][signal_LFLO.keys()] = signal_LFLO.values()</span><br><span class="line">    Total_Score[<span class="string">'total_score'</span>] = np.dot(Total_Score, np.array([<span class="number">0.5</span>, <span class="number">0.5</span>]))  <span class="comment"># 综合两个因子的大小，不失一般性，等权求和</span></span><br><span class="line">    total_score = Total_Score[<span class="string">'total_score'</span>].to_dict()</span><br><span class="line">        </span><br><span class="line">    wts = simple_long_only(total_score,yesterday)  <span class="comment"># 组合构建函数</span></span><br><span class="line">    Factor= Factor.loc[~Factor.index.duplicated(keep=<span class="string">'first'</span>)]</span><br><span class="line">    Factor[<span class="string">'wts'</span>] = np.nan</span><br><span class="line">    Factor[<span class="string">'wts'</span>][wts.keys()] = wts.values()</span><br><span class="line">    Factor = Factor[~np.isnan(Factor[<span class="string">'wts'</span>])]</span><br><span class="line">    Factor.set_index(<span class="string">'secID'</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">    Factor.drop([<span class="string">'PE'</span>,<span class="string">'LFLO'</span>], axis=<span class="number">1</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">    buy_list = Factor.index</span><br><span class="line">    </span><br><span class="line">    handle_stock_orders(context, wts,buy_list)</span><br><span class="line">    handle_futures_orders(context)</span><br><span class="line">    <span class="comment"># handle_futures_position_switch(context)</span></span><br><span class="line">    </span><br><span class="line"><span class="comment"># 订单委托</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_stock_orders</span><span class="params">(context, wts, buy_list)</span>:</span>    </span><br><span class="line">    account = context.get_account(<span class="string">'stock_account'</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 先卖出</span></span><br><span class="line">    sell_list = account.get_positions()</span><br><span class="line">    <span class="keyword">for</span> stk <span class="keyword">in</span> sell_list:</span><br><span class="line">        account.order_to(stk, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 再买入</span></span><br><span class="line">    total_money = account.portfolio_value </span><br><span class="line">    prices = account.reference_price  </span><br><span class="line">    <span class="keyword">for</span> stk <span class="keyword">in</span> buy_list:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">if</span> np.isnan(prices[stk]) <span class="keyword">or</span> prices[stk] == <span class="number">0</span>:  <span class="comment"># 停牌或者还没有上市等原因不能交易</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        account.order(stk, int(total_money * wts[stk[<span class="number">0</span>:<span class="number">6</span>]] / prices[stk] /<span class="number">100</span>)*<span class="number">100</span>)      </span><br><span class="line">        </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_futures_orders</span><span class="params">(context)</span>:</span>      </span><br><span class="line">    stock_account = context.get_account(<span class="string">'stock_account'</span>)</span><br><span class="line">    future_account = context.get_account(<span class="string">"futures_account"</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 将主力连续合约映射为实际合约</span></span><br><span class="line">    contract_current_month = context.get_symbol(<span class="string">'IFL0'</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 判断是否需要移仓换月</span></span><br><span class="line">    contract_holding = context.contract_holding</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> contract_holding:</span><br><span class="line">        contract_holding = contract_current_month</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">if</span> contract_holding:</span><br><span class="line">        last_trade_date = get_asset(contract_holding).last_trade_date   </span><br><span class="line"></span><br><span class="line">        <span class="comment"># 当月合约离交割日只有3天</span></span><br><span class="line">        days_to_expire = (last_trade_date- context.current_date).days</span><br><span class="line">        <span class="keyword">if</span> days_to_expire == <span class="number">3</span>:        </span><br><span class="line">            log.info(<span class="string">u'距离%s到期，还有%s天'</span> % (contract_holding, days_to_expire))</span><br><span class="line">            contract_next_month = context.get_symbol(<span class="string">'IFL1'</span>)                </span><br><span class="line">            futures_position = future_account.get_position(contract_holding)</span><br><span class="line">            <span class="keyword">if</span> futures_position:</span><br><span class="line">                current_holding = futures_position.short_amount</span><br><span class="line">                log.info(<span class="string">u'移仓换月。[平仓旧合约:%s,开仓新合约:%s,手数:%s]'</span> % (contract_holding, contract_next_month, int(current_holding)))</span><br><span class="line">                <span class="keyword">if</span> current_holding == <span class="number">0</span>:</span><br><span class="line">                    <span class="keyword">return</span></span><br><span class="line">                future_account.order(contract_holding, current_holding, <span class="string">"close"</span>)</span><br><span class="line">                future_account.order(contract_next_month, <span class="number">-1</span> * current_holding, <span class="string">"open"</span>)</span><br><span class="line">                context.contract_holding = contract_next_month</span><br><span class="line">                <span class="keyword">return</span>    </span><br><span class="line">    stock_position = stock_account.get_positions()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 有多头股票仓位，使用期货进行空头对冲</span></span><br><span class="line">    <span class="keyword">if</span> stock_position:  </span><br><span class="line">        stock_positions_value = stock_account.portfolio_value - stock_account.cash</span><br><span class="line">        <span class="comment"># print u'当前股票多头市值', stock_positions_value      </span></span><br><span class="line">        futures_position = future_account.get_position(contract_holding)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 没有空头持仓，则建仓进行对冲</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> futures_position:              </span><br><span class="line">            contract_current_month = context.get_symbol(<span class="string">'IFL0'</span>)</span><br><span class="line">            multiplier = get_asset(contract_current_month).multiplier</span><br><span class="line">            futures_price = context.current_price(contract_current_month)</span><br><span class="line">            total_hedging_amount = int(stock_positions_value / futures_price / multiplier)</span><br><span class="line">            log.info(<span class="string">u'%s没有持仓，准备建仓。空头开仓%s手'</span> % (contract_current_month, contract_holding))</span><br><span class="line">            future_account.order(contract_current_month, <span class="number">-1</span> * total_hedging_amount, <span class="string">"open"</span>)</span><br><span class="line">            context.contract_holding = contract_current_month</span><br><span class="line">            </span><br><span class="line">        <span class="comment"># 已经有空头持仓，则判断是否需要调仓</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            contract_holding = context.contract_holding</span><br><span class="line">            contract_current_month = context.get_symbol(<span class="string">'IFL0'</span>)</span><br><span class="line">            futures_price = context.current_price(contract_current_month)</span><br><span class="line">            multiplier = get_asset(contract_holding).multiplier</span><br><span class="line">            <span class="comment"># 计算当前对冲需要的期货手数</span></span><br><span class="line">            total_hedging_amount = int(stock_positions_value / futures_price / multiplier)</span><br><span class="line">            hedging_amount_diff = total_hedging_amount - futures_position.short_amount</span><br><span class="line">            <span class="comment"># 调仓阈值，可以适当放大，防止反复调仓</span></span><br><span class="line">            threshold = <span class="number">2</span></span><br><span class="line">            <span class="keyword">if</span> hedging_amount_diff &gt;= threshold:</span><br><span class="line">                log.info(<span class="string">u'空头调仓。[合约名:%s,当前空头手数:%s,目标空头手数:%s]'</span> % (contract_holding, int(futures_position.short_amount), total_hedging_amount))</span><br><span class="line">                <span class="comment"># 多开空仓</span></span><br><span class="line">                future_account.order(contract_holding, <span class="number">-1</span> * int(hedging_amount_diff), <span class="string">"open"</span>)</span><br><span class="line">            <span class="keyword">elif</span> hedging_amount_diff &lt;= -threshold:</span><br><span class="line">                log.info(<span class="string">u'空头调仓。[合约名:%s,当前空头手数:%s,目标空头手数:%s]'</span> % (contract_holding, int(futures_position.short_amount), total_hedging_amount))</span><br><span class="line">                <span class="comment"># 平掉部分空仓</span></span><br><span class="line">                future_account.order(contract_holding, int(abs(hedging_amount_diff)), <span class="string">"close"</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/alpha_hedge/3.PNG" alt></p>
+<p>由此可见，找到一个好的策略实在是非常困难。</p>
+<h2>总结</h2>
+此处我分析了多因子策略、对冲策略、三因子模型对冲，总结下来，其实当前很多策略代码都是加过某种“修饰”，具体效果并不好。后期我的研究可能会有以下内容
+
+<p>1.学习更多策略<br>2.尝试不用平台实现自己的回测框架</p>
+<h2>参考资料</h2>
+1.https://uqer.io/v3/community/share/5b07797b8d8dd2011405ce10
+2.https://uqer.io/v3/community/share/55e662f9f9f06c1ea481f9cf
+3.https://uqer.io/v3/community/share/55ff6ce9f9f06c597265ef04
+4.https://mp.weixin.qq.com/s/a_yWHV9qzlPsSY7qX4dKBg
+5.https://uqer.io/v3/community/share/56893bb1228e5b67159beb38
+6.https://uqer.io/v3/community/share/57693102228e5b8192a559ff
+7.https://uqer.io/v3/community/share/57c6ac5a228e5b6d237c771e
+8.https://uqer.io/v3/community/share/594aa088fba7a70057b0c0e6
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantitative-trading/" rel="tag"># Quantitative trading</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/08/庄子-秋水/" rel="next" title="庄子/秋水节选">
+                <i class="fa fa-chevron-left"></i> 庄子/秋水节选
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/qiushui.jpg" alt="秋水">
+            
+              <p class="site-author-name" itemprop="name">秋水</p>
+              <p class="site-description motion-element" itemprop="description">闭口治世之贤良，张口乱世之枭雄</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">Alpha对冲策略简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">1.Alpha策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">2.Alpha对冲策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">多因子策略代码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">1.基础参数设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">2.日期设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">3.帐户配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">4.帐户初始化和执行交易指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">5.获取因子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">6.构建score矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">7.获取目标股票</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">8.获取目标股票的SecID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">9.买卖股票</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">Alpha对冲策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">1.帐户设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">2.获取当前合约持仓状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">3.对持有合约进行处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">4.对当前持有股票进行对冲</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">5.对期货进行调仓</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">Fama-French三因子模型对冲</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋水</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://qiushui777.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2019/08/09/Alpha对冲策略基础详解/';
+          this.page.identifier = '2019/08/09/Alpha对冲策略基础详解/';
+          this.page.title = 'Alpha对冲策略基础详解';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://qiushui777.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
