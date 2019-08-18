@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Quantitative trading,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言 之前的文章中，我使用优矿平台完成了一个简单的策略分析。在那篇文章的末尾，我提到一个提高的方向就是自己实现数据获取和回测。我个人并不喜欢看不到源码的框架，并且优矿想要获取加密货币的数据必须付费，所以这里想基于abu(一个开源的量化系统)进行一个开发。不过值得说明的是，像我这样的个人研究者，受迫于资金和工具的落后，相对来说，使用优矿这样的工具平台其实是一个更好的选择，可以帮助研究人员更专注于策略">
+<meta name="keywords" content="Quantitative trading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给abu增加Binance api接口获取加密货币价格数据">
+<meta property="og:url" content="http://yoursite.com/2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/index.html">
+<meta property="og:site_name" content="秋水">
+<meta property="og:description" content="引言 之前的文章中，我使用优矿平台完成了一个简单的策略分析。在那篇文章的末尾，我提到一个提高的方向就是自己实现数据获取和回测。我个人并不喜欢看不到源码的框架，并且优矿想要获取加密货币的数据必须付费，所以这里想基于abu(一个开源的量化系统)进行一个开发。不过值得说明的是，像我这样的个人研究者，受迫于资金和工具的落后，相对来说，使用优矿这样的工具平台其实是一个更好的选择，可以帮助研究人员更专注于策略">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-18T14:09:47.633Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="给abu增加Binance api接口获取加密货币价格数据">
+<meta name="twitter:description" content="引言 之前的文章中，我使用优矿平台完成了一个简单的策略分析。在那篇文章的末尾，我提到一个提高的方向就是自己实现数据获取和回测。我个人并不喜欢看不到源码的框架，并且优矿想要获取加密货币的数据必须付费，所以这里想基于abu(一个开源的量化系统)进行一个开发。不过值得说明的是，像我这样的个人研究者，受迫于资金和工具的落后，相对来说，使用优矿这样的工具平台其实是一个更好的选择，可以帮助研究人员更专注于策略">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/">
+
+
+
+
+
+  <title>给abu增加Binance api接口获取加密货币价格数据 | 秋水</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秋水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="秋水">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/qiushui.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">给abu增加Binance api接口获取加密货币价格数据</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-18T21:51:40+08:00">
+                2019-08-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2>引言</h2>
+之前的文章中，我使用优矿平台完成了一个简单的策略分析。在那篇文章的末尾，我提到一个提高的方向就是自己实现数据获取和回测。我个人并不喜欢看不到源码的框架，并且优矿想要获取加密货币的数据必须付费，所以这里想基于abu(一个开源的量化系统)进行一个开发。不过值得说明的是，像我这样的个人研究者，受迫于资金和工具的落后，相对来说，使用优矿这样的工具平台其实是一个更好的选择，可以帮助研究人员更专注于策略。我这么做只是自己的偏好而已。
+
+<h2>本项目地址</h2>
+https://github.com/qiushui777/Qsabu
+
+<h2>abu简介</h2>
+abu是由阿布开发的一个量化交易系统，已经公布源码，官方网站在https://blog.abuquant.com/。其上有丰富的教程。此处就不再多做介绍了。
+
+<h2>abu数据获取源码分析</h2>
+为了增加币安的api，我们需要先分析清楚abu的相关源码。
+<h3>(1)判断是从本地还是网络获取数据</h3>
+获取数据首先从ABuSymbolPd.py文件开始，它自身并不是一个类，而是写了几个重要的函数。在示例中，代码通过make_kl_df函数获取数据。该函数有以下参数
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">:param data_mode: EMarketDataSplitMode对象</span><br><span class="line">:param symbol: list <span class="keyword">or</span> Series <span class="keyword">or</span> str <span class="keyword">or</span> Symbol</span><br><span class="line">                e.g :[<span class="string">'TSLA'</span>,<span class="string">'SFUN'</span>] <span class="keyword">or</span> <span class="string">'TSLA'</span> <span class="keyword">or</span> Symbol(MType.US,<span class="string">'TSLA'</span>)</span><br><span class="line">:param n_folds: 请求几年的历史回测数据int</span><br><span class="line">:param start: 请求的开始日期 str对象</span><br><span class="line">:param end: 请求的结束日期 str对象</span><br><span class="line">:param benchmark: 资金回测时间标尺，AbuBenchmark实例对象</span><br><span class="line">:param show_progress: 是否显示进度条</span><br><span class="line">:param parallel: 是否并行获取</span><br><span class="line">:param parallel_save: 是否并行后进行统一批量保存</span><br></pre></td></tr></table></figure>
+
+<p>如果这里设定了要使用并行的话，将会调用kl_df_dict_parallel函数，其他情况下，调用的是_make_kl_df。而后者进一步调用了kline_pd函数。这个函数在ABuDataSource.py中，并且会设置数据源source_dict。此处函数关键的部分如下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ABuEnv.g_data_fetch_mode != EMarketDataFetchMode.E_DATA_FETCH_FORCE_NET:</span><br><span class="line">    <span class="comment"># 如果env中设置并非强制从网络获取数据，就从本地数据尝试读取df, df_req_start</span></span><br><span class="line">    df, df_req_start, df_req_end = load_kline_df(temp_symbol.value)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> ABuEnv.g_data_fetch_mode == EMarketDataFetchMode.E_DATA_FETCH_FORCE_NET:</span><br><span class="line">            <span class="comment"># 如果是强制走网络，直接请求使用load_kline_df_net</span></span><br><span class="line">            <span class="keyword">return</span> load_kline_df_net(source, temp_symbol, n_folds=n_folds, start=start, end=end, start_int=start_int,</span><br><span class="line">                                     end_int=end_int, save=save), save_kl_key</span><br></pre></td></tr></table></figure>
+
+<p>分别是从本地和从网络来获取数据。这两个关键的函数都在ABuDataCache.py中。<br>kline_pd这个函数还有一个比较重要的地方是，它最初会设置一个symbol，这对后面的很多东西都会有影响。这部分逻辑在code_to_symbol函数中提现。</p>
+<h3>(2)本地数据获取</h3>
+在load_kline_df中，会先通过load_kline_key判断对应的数据集是否存在，如果存在就会进一步调用load_kline_func函数也就是_load_kline_csv。load_df_csv会返回一个Dataframe也就是那个csv的内容。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">date_key = <span class="literal">None</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="comment"># 首先通过symbol_key查询对应的金融时间序列是否存在索引date_key</span></span><br><span class="line">    date_key = load_kline_key(symbol_key)</span><br><span class="line"><span class="keyword">except</span> HDF5ExtError <span class="keyword">as</span> e:</span><br><span class="line">    <span class="comment"># r_s = False的话，hdf5物理性错误就删除了，重来，所以重要的hdf5需要手动备份.</span></span><br><span class="line">    r_s = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">raise</span> RuntimeError(<span class="string">'hdf5 load error!! err=&#123;&#125; '</span>.format(e)) <span class="keyword">if</span> r_s <span class="keyword">else</span> os.remove(ABuEnv.g_project_kl_df_data)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> date_key <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="comment"># 在索引date_key存在的情况下，继续查询实体金融时间序列对象</span></span><br><span class="line">    df = load_kline_func(date_key[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">if</span> df <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        df[<span class="string">'key'</span>] = list(range(<span class="number">0</span>, len(df)))</span><br><span class="line">        <span class="comment"># 索引date_key中转换df_req_start</span></span><br><span class="line">        df_req_start = int(date_key[<span class="number">0</span>][<span class="number">-17</span>: <span class="number">-9</span>])</span><br><span class="line">        <span class="comment"># 索引date_key中转换df_req_end</span></span><br><span class="line">        df_req_end = int(date_key[<span class="number">0</span>][<span class="number">-8</span>:])</span><br><span class="line">        <span class="keyword">return</span> df, df_req_start, df_req_end</span><br></pre></td></tr></table></figure>
+
+<h3>(3网络数据的获取</h3>
+从网络获取数据的关键就是先实例化对象，然后调用对象的kline函数来获取数据。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 实例化数据源对象</span></span><br><span class="line">data_source = source(temp_symbol)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> data_source.check_support():</span><br><span class="line">    <span class="comment"># 通过数据源混入的SupportMixin类检测数据源是否支持temp_symbol对应的市场数据</span></span><br><span class="line">    df = data_source.kline(n_folds=n_folds, start=start, end=end)</span><br></pre></td></tr></table></figure>
+
+<p>这里的source最初是在ABuDataSource.py 中被定义，而后一路传递过来。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">source_dict = &#123;EMarketSourceType.E_MARKET_SOURCE_bd.value: BDApi,</span><br><span class="line">               EMarketSourceType.E_MARKET_SOURCE_tx.value: TXApi,</span><br><span class="line">               EMarketSourceType.E_MARKET_SOURCE_nt.value: NTApi,</span><br><span class="line">               EMarketSourceType.E_MARKET_SOURCE_sn_us.value: SNUSApi,</span><br><span class="line">               EMarketSourceType.E_MARKET_SOURCE_sn_futures.value: SNFuturesApi,</span><br><span class="line">               EMarketSourceType.E_MARKET_SOURCE_sn_futures_gb.value: SNFuturesGBApi,</span><br><span class="line">               EMarketSourceType.E_MARKET_SOURCE_hb_tc.value: HBApi&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对应的每个值为ABuEnv.py中EMarketSourceType类被定义。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EMarketSourceType</span><span class="params">(Enum)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">        数据源，当数据获取不可靠时，可尝试切换数据源，更可连接私有的数据源</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="string">"""百度 a股，美股，港股"""</span></span><br><span class="line">    E_MARKET_SOURCE_bd = <span class="number">0</span></span><br><span class="line">    <span class="string">"""腾讯 a股，美股，港股"""</span></span><br><span class="line">    E_MARKET_SOURCE_tx = <span class="number">1</span></span><br><span class="line">    <span class="string">"""网易 a股，美股，港股"""</span></span><br><span class="line">    E_MARKET_SOURCE_nt = <span class="number">2</span></span><br><span class="line">    <span class="string">"""新浪 美股"""</span></span><br><span class="line">    E_MARKET_SOURCE_sn_us = <span class="number">3</span></span><br><span class="line"></span><br><span class="line">    <span class="string">"""新浪 国内期货"""</span></span><br><span class="line">    E_MARKET_SOURCE_sn_futures = <span class="number">100</span></span><br><span class="line">    <span class="string">"""新浪 国际期货"""</span></span><br><span class="line">    E_MARKET_SOURCE_sn_futures_gb = <span class="number">101</span></span><br><span class="line"></span><br><span class="line">    <span class="string">"""火币 比特币，莱特币"""</span></span><br><span class="line">    E_MARKET_SOURCE_hb_tc = <span class="number">200</span></span><br></pre></td></tr></table></figure>
+
+<p>而这里的HBApi类则在ABuDataFeed.py中被定义。在这个datafeed中，我们看到它有调用到ABuDataParser.py中的HBTCParser来进行数据的解析。</p>
+<h3>(4)数据存储</h3>
+在load_kline_df_net函数中，获取网络的数据后，会调用dump_kline_df函数。
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dump_kline_df(df, temp_symbol.value, df_key)</span><br></pre></td></tr></table></figure>
+
+<p>这个函数中，如果发现本地没有存储过相关有的数据，会去调用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dump_kline_func(symbol_key, date_key, dump_df)</span><br></pre></td></tr></table></figure>
+
+<p>一般情况下，我们用csv的格式进行存储，这里的话也就是_dump_kline_csv。</p>
+<h2>增加币安api</h2>
+通过以上的分析，我们已经可以开始修改源码增加api了。
+<h3>(1)全局变量设置</h3>
+首先在ABuEnv.py的类EMarketSourceType中加入
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">E_MARKET_SOURCE_binance= <span class="number">201</span></span><br></pre></td></tr></table></figure>
+
+<p>在ABuDataSource.py中添加SourceDict的对应项，并记得在import的时候导入</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EMarketSourceType.E_MARKET_SOURCE_binance: BNApi</span><br></pre></td></tr></table></figure>
+
+<p>在ABuDataFeed.py中加入对应的BNApi类。由于BNApi类需要继承SuppportMixin，这个类会检查自身是否支持传入的这个交易对。在加入这个类的过程中，可以发现kline_pd的code_to_symbol函数也需要做相应的修改，否则无法返回我们需要的symbol对象。所以我们需要在这个函数中加入如下的代码，专门为我们自定义的数据请求服务。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">qs_flag = code[:<span class="number">2</span>]</span><br><span class="line"><span class="keyword">if</span>(qs_flag == <span class="string">"Qs"</span>):</span><br><span class="line">    market = EMarketTargetType.E_MARKET_TARGET_TC</span><br><span class="line">    sub_market = EMarketSubType.COIN</span><br><span class="line">    <span class="keyword">return</span> Symbol(market, sub_market, code)</span><br></pre></td></tr></table></figure>
+
+<p>并且，我们在SupportMixin类的check_support函数中也添加对应的代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(symbol.symbol_code[:<span class="number">2</span>] == <span class="string">"Qs"</span>):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<h3>(2)数据处理</h3>
+对于币安返回的数据，我们需要设置一个parser进行处理。这里需要解决的问题是，币安返回的date是毫秒级别的unix time，所以我们在ABuDateUtil.py中加入这样的一个函数进行时间的转换。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fmt_epoch</span><span class="params">(epoch_time)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    conver the unix time with milliseconds to datetime</span></span><br><span class="line"><span class="string">    https://stackoverflow.com/questions/21787496/converting-epoch-time-with-milliseconds-to-datetime</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    s, ms = divmod(epoch_time, <span class="number">1000</span>) </span><br><span class="line">    fmt_time = time.strftime(<span class="string">'%Y-%m-%d'</span>, time.gmtime(s))</span><br><span class="line">    <span class="keyword">return</span> fmt_time</span><br></pre></td></tr></table></figure>
+
+<p>在此之后，我们就可以写出针对币安的数据解析类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@AbuDataParseWrap()</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BIANParser</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""示例币类市场数据源解析类，被类装饰器AbuDataParseWrap装饰</span></span><br><span class="line"><span class="string">       专门为BNApi而写的数据解析类</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># noinspection PyUnusedLocal</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, symbol, json_dict)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        :param symbol: 请求的symbol str对象</span></span><br><span class="line"><span class="string">        :param json_dict: 请求返回的json数据</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">        data = json_dict</span><br><span class="line">        <span class="comment"># 为AbuDataParseWrap准备类必须的属性序列</span></span><br><span class="line">        <span class="keyword">if</span> len(data) &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="comment"># 时间日期序列</span></span><br><span class="line">            self.date = [item[<span class="number">0</span>] <span class="keyword">for</span> item <span class="keyword">in</span> data]</span><br><span class="line">            <span class="comment"># 开盘价格序列</span></span><br><span class="line">            self.open = [item[<span class="number">1</span>] <span class="keyword">for</span> item <span class="keyword">in</span> data]</span><br><span class="line">            <span class="comment"># 最高价格序列</span></span><br><span class="line">            self.high = [item[<span class="number">2</span>] <span class="keyword">for</span> item <span class="keyword">in</span> data]</span><br><span class="line">            <span class="comment"># 最低价格序列</span></span><br><span class="line">            self.low = [item[<span class="number">3</span>] <span class="keyword">for</span> item <span class="keyword">in</span> data]</span><br><span class="line">            <span class="comment"># 收盘价格序列</span></span><br><span class="line">            self.close = [item[<span class="number">4</span>] <span class="keyword">for</span> item <span class="keyword">in</span> data]</span><br><span class="line">            <span class="comment"># 成交量序列</span></span><br><span class="line">            self.volume = [item[<span class="number">5</span>] <span class="keyword">for</span> item <span class="keyword">in</span> data]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 时间日期进行格式转化，转化为如2017-07-26格式字符串</span></span><br><span class="line">            self.date = list(map(<span class="keyword">lambda</span> date: ABuDateUtil.fmt_epoch(date), self.date))</span><br></pre></td></tr></table></figure>
+
+<h3>(3)BNApi</h3>
+到这里，我们可以完成BNApi这个类了。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BNApi</span><span class="params">(TCBaseMarket, SupportMixin)</span>:</span></span><br><span class="line">    <span class="string">"""Binance数据源"""</span></span><br><span class="line"></span><br><span class="line">    K_NET_BASE = <span class="string">'https://api.binance.com/api/v1/klines'</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, symbol)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        :param symbol: Symbol类型对象</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        super(BNApi, self).__init__(symbol)</span><br><span class="line">        <span class="comment"># 设置数据源解析对象类</span></span><br><span class="line">        self.data_parser_cls = BIANParser</span><br><span class="line">        self.coinpair = symbol.symbol_code[<span class="number">2</span>:]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_support_market</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""只支持币类市场"""</span></span><br><span class="line">        <span class="keyword">return</span> [EMarketTargetType.E_MARKET_TARGET_TC]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">kline</span><span class="params">(self, n_folds=<span class="number">2</span>, start=None, end=None, interval = <span class="string">"1d"</span>)</span>:</span></span><br><span class="line">        <span class="string">"""日k线接口"""</span></span><br><span class="line">        startunixm = <span class="literal">None</span></span><br><span class="line">        endunixm = <span class="literal">None</span></span><br><span class="line">        <span class="keyword">if</span> start <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            startunixm = ABuDateUtil.datestr_unixm(start)</span><br><span class="line">        <span class="keyword">if</span> end <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            endunixm = ABuDateUtil.datestr_unixm(end)</span><br><span class="line">        data = ABuNetWork.get(url=BNApi.K_NET_BASE, params=&#123;<span class="string">"symbol"</span>:self.coinpair, <span class="string">"interval"</span>:interval, </span><br><span class="line">            <span class="string">"startTime"</span>: startunixm, <span class="string">"endTime"</span>: endunixm&#125;, timeout=K_TIME_OUT).json()</span><br><span class="line">        kl_df = self.data_parser_cls(self._symbol, data).df</span><br><span class="line">        <span class="keyword">if</span> kl_df <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        <span class="keyword">return</span> TCBaseMarket._fix_kline_pd(kl_df,n_folds,start,end)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">minute</span><span class="params">(self, *args, **kwargs)</span>:</span></span><br><span class="line">        <span class="string">"""分钟k线接口"""</span></span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError(<span class="string">'HBApi minute NotImplementedError!'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>完成这一切后就可以愉快地使用这个api来获取币安地数据了，不过很快，我们就悲剧地发现币安的api存在诸多问题，例如‘BTCUSDT’这个交易对只能获取17年到18年底的数据。显然，我们开发的这个api并不实用，所以我们可以根据上述模式增加较好的api。具体使用方法如下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">abupy.env.g_market_source = EMarketSourceType.E_MARKET_SOURCE_binance</span><br><span class="line">abupy.env.g_data_fetch_mode = EMarketDataFetchMode.E_DATA_FETCH_NORMAL</span><br><span class="line">print(ABuSymbolPd.make_kl_df(symbol=<span class="string">'QsETHUSDT'</span>))</span><br></pre></td></tr></table></figure>
+
+<h2>结论</h2>
+写到这里，我总结下我这个小project的优缺点
+
+<p>优点：</p>
+<ol>
+<li>能够获取币安的加密货币数据，优矿上需要付费才能获得，并且abu原本的火币接口已经无法使用</li>
+<li>后续想要增加接口可以按照此模式进行</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>该接口无法获取完整数据，不同的交易对能获取的数据时间段并不相同</li>
+<li>只有获取某时间段交易数据的接口，其他接口未开发</li>
+<li>币安接口调用必须翻墙，自身ip需要是海外ip</li>
+</ol>
+<h2>后续研究</h2>
+
+<ol>
+<li>增加较为实用的api，币安很多api暂时未实现</li>
+<li>利用离线数据进行策略研究</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantitative-trading/" rel="tag"># Quantitative trading</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/09/Alpha对冲策略基础详解/" rel="next" title="Alpha对冲策略基础详解">
+                <i class="fa fa-chevron-left"></i> Alpha对冲策略基础详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/qiushui.jpg" alt="秋水">
+            
+              <p class="site-author-name" itemprop="name">秋水</p>
+              <p class="site-description motion-element" itemprop="description">闭口治世之贤良，张口乱世之枭雄</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">本项目地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">abu简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">abu数据获取源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">(1)判断是从本地还是网络获取数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">(2)本地数据获取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">(3网络数据的获取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">(4)数据存储</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">增加币安api</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">(1)全局变量设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">(2)数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">(3)BNApi</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">后续研究</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋水</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://qiushui777.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/';
+          this.page.identifier = '2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/';
+          this.page.title = '给abu增加Binance api接口获取加密货币价格数据';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://qiushui777.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
