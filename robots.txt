@@ -12,5 +12,5 @@ Disallow: /js/
 Disallow: /css/
 Disallow: /links/
 
-Sitemap: https://qiushui777.github.io/sitemap.xml
-Sitemap: https://qiushui777.github.io/baidusitemap.xml
+Sitemap: http://qiushui777.github.io/sitemap.xml
+Sitemap: http://qiushui777.github.io/baidusitemap.xml
