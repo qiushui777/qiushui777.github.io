@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Quantitative trading,qsq,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言 在进行加密货币的量化研究过程中，我遇到了一些困难。  很多量化交易系统专注于股票期货，对于加密货币并不友好，示范策略并没有覆盖多币种 很多离线数据集没有包含最新的一些数据，而一些api则需要付费，我个人暂时没有付费获取数据的意愿 在其他系统的基础上开发必须适配其中的很多数据结构，对我来说并不灵活  因而，我决定自己实现一个量化交易系统，并不保证系统能够超过其他的量化系统，但是这个系统会有如下">
+<meta name="keywords" content="Quantitative trading,qsq">
+<meta property="og:type" content="article">
+<meta property="og:title" content="qsq加密货币量化系统：数据获取和分析">
+<meta property="og:url" content="https://qiushui777.github.io/2019/08/28/qsq-paper1-data-fetch-and-analysis/index.html">
+<meta property="og:site_name" content="秋水">
+<meta property="og:description" content="引言 在进行加密货币的量化研究过程中，我遇到了一些困难。  很多量化交易系统专注于股票期货，对于加密货币并不友好，示范策略并没有覆盖多币种 很多离线数据集没有包含最新的一些数据，而一些api则需要付费，我个人暂时没有付费获取数据的意愿 在其他系统的基础上开发必须适配其中的很多数据结构，对我来说并不灵活  因而，我决定自己实现一个量化交易系统，并不保证系统能够超过其他的量化系统，但是这个系统会有如下">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper1/output_14_0.png">
+<meta property="og:updated_time" content="2019-08-28T13:07:30.062Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="qsq加密货币量化系统：数据获取和分析">
+<meta name="twitter:description" content="引言 在进行加密货币的量化研究过程中，我遇到了一些困难。  很多量化交易系统专注于股票期货，对于加密货币并不友好，示范策略并没有覆盖多币种 很多离线数据集没有包含最新的一些数据，而一些api则需要付费，我个人暂时没有付费获取数据的意愿 在其他系统的基础上开发必须适配其中的很多数据结构，对我来说并不灵活  因而，我决定自己实现一个量化交易系统，并不保证系统能够超过其他的量化系统，但是这个系统会有如下">
+<meta name="twitter:image" content="https://qiushui777.github.io/images/qsq_paper1/output_14_0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qiushui777.github.io/2019/08/28/qsq-paper1-data-fetch-and-analysis/">
+
+
+
+
+
+  <title>qsq加密货币量化系统：数据获取和分析 | 秋水</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秋水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2019/08/28/qsq-paper1-data-fetch-and-analysis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="秋水">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/qiushui.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">qsq加密货币量化系统：数据获取和分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-28T21:03:40+08:00">
+                2019-08-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/28/qsq-paper1-data-fetch-and-analysis/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/28/qsq-paper1-data-fetch-and-analysis/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2>引言</h2>
+在进行加密货币的量化研究过程中，我遇到了一些困难。
+<ol>
+<li>很多量化交易系统专注于股票期货，对于加密货币并不友好，示范策略并没有覆盖多币种</li>
+<li>很多离线数据集没有包含最新的一些数据，而一些api则需要付费，我个人暂时没有付费获取数据的意愿</li>
+<li>在其他系统的基础上开发必须适配其中的很多数据结构，对我来说并不灵活</li>
+</ol>
+因而，我决定自己实现一个量化交易系统，并不保证系统能够超过其他的量化系统，但是这个系统会有如下特点。
+<ol>
+<li>专注于加密货币，如果后期有需要，会加入股票期货等</li>
+<li>系统简单，根据需求而添加相应的代码，会有教程展示这个系统的完成过程</li>
+</ol>
+系统的名称叫做qsq。那么，这篇研究分享主要完成如下内容。
+<ol>
+<li>在qsq中加入获取CoinMarketCap上的多币种日线数据的模块</li>
+<li>在qsq中加入对数据的统计特性进行简单分析的模块</li>
+</ol>
+
+<h2>项目地址</h2>
+https://github.com/qiushui777/Qsabu
+
+<p>本文位于qs_papers目录下，建议使用jupter notebook打开学习。</p>
+<h2>数据获取</h2>
+在qsq目录下，我新建了ScraperQs文件夹，并创建了我的爬虫代码QsCoinMk.py，包含类QsCoinMkScraper。这个类中关键的两个函数如下。
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_all_kline_data</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""获取所有在support list 中的代币的数据"""</span></span><br><span class="line">    <span class="keyword">for</span> coin <span class="keyword">in</span> self.support_list:</span><br><span class="line">        self.get_kline_data(cointype=coin)</span><br><span class="line">        time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">refresh_all_kline_data</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""更新所有在support list中的代币的数据"""</span></span><br><span class="line">    <span class="keyword">for</span> coin <span class="keyword">in</span> self.support_list:</span><br><span class="line">        self.refresh_kline_data(refresh_cointype=coin)</span><br></pre></td></tr></table></figure>
+
+<p>事实上，在调用get_all_kline_data函数的时候，可能被网站封掉，所以出错后可以再次调用refresh_all_kline_data来继续下载数据。数据的下载地址在CoreQs文件夹中的QsEny.py中设定。使用数据获取模块的一个示例如下。获取的数据将会存放在C:\Users&lt;用户名&gt;\qsq\data中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> qsq <span class="keyword">import</span> QsCoinMkScraper</span><br><span class="line"></span><br><span class="line">scraper = QsCoinMkScraper()</span><br><span class="line">scraper.get_all_kline_data()</span><br><span class="line">scraper.refresh_all_kline_data()</span><br></pre></td></tr></table></figure>
+
+<h2>数据分析</h2>
+在qsq中拥有可视化和数据统计的api，要使用它们，我们需要导入QsDrawUtil, QsStat。同时，还需要使用QsDataMarket来将刚刚下载好的数据加载起来。
+
+<h3>数据加载</h3>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基础库导入</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> division</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line">warnings.filterwarnings(<span class="string">'ignore'</span>)</span><br><span class="line">warnings.simplefilter(<span class="string">'ignore'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> matplotlib <span class="keyword">as</span> mpl</span><br><span class="line">%matplotlib inline</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="comment"># 使用insert 0即只使用github，避免交叉使用了pip安装的abupy，导致的版本不一致问题</span></span><br><span class="line">sys.path.insert(<span class="number">0</span>, os.path.abspath(<span class="string">'../'</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> qsq <span class="keyword">import</span> QsDataMarket, QsDrawUtil, QsStat</span><br></pre></td></tr></table></figure>
+
+<p>在MarketQs中创建QsDataMarket类，这个类的关键函数是get_coin_df，可以通过这个函数来加载相应的数据集。这里我们先加载5个币种进行简单分析。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">qsmarket = QsDataMarket()</span><br><span class="line">bitcoin = qsmarket.get_coin_df(coin=<span class="string">'bitcoin'</span>)</span><br><span class="line">ethereum = qsmarket.get_coin_df(coin=<span class="string">'ethereum'</span>)</span><br><span class="line">litecoin = qsmarket.get_coin_df(coin=<span class="string">'litecoin'</span>)</span><br><span class="line">ripple = qsmarket.get_coin_df(coin=<span class="string">'ripple'</span>)</span><br><span class="line">bitcoin_cash = qsmarket.get_coin_df(coin=<span class="string">'bitcoin-cash'</span>)</span><br></pre></td></tr></table></figure>
+
+<h3>绘图</h3>
+
+<p>在qsq的UtilQs中创建QsDrawUtil.py，这个是专门用来绘图的。目前支持plot_multi_df函数。需要输入一个值为Dataframe的字典。而且由于不同的币价格不同，为了在绘图中比较它的一个波动性，需要将对应的datafram进行一个缩放。这部分代码则是在QsScaleUtil中实现。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mpl.rcParams[<span class="string">'figure.figsize'</span>] = (<span class="number">15</span>,<span class="number">10</span>)</span><br><span class="line">QsDrawUtil.plot_multi_df(&#123;<span class="string">'bitcoin'</span>:bitcoin,<span class="string">'ethereum'</span>:ethereum,<span class="string">'litecoin'</span>:litecoin,<span class="string">'ripple'</span>:ripple,</span><br><span class="line">                                <span class="string">'bitcoin_cash'</span>:bitcoin_cash&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/qsq_paper1/output_14_0.png" alt></p>
+<p>显然，最近两年的走势研究起来比较有趣，这部分波动比较大。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bitcoin_2y = bitcoin[<span class="number">-730</span>:]</span><br><span class="line">ethereum_2y = ethereum[<span class="number">-730</span>:]</span><br><span class="line">litecoin_2y = litecoin[<span class="number">-730</span>:]</span><br><span class="line">ripple_2y = ripple[<span class="number">-730</span>:]</span><br><span class="line">bitcoin_cash_2y = bitcoin_cash[<span class="number">-730</span>:]</span><br></pre></td></tr></table></figure>
+
+<h3>统计特性</h3>
+
+<p>为了分析数据的震荡幅度等，在MarketQs下新建QsStat.py提供专门api。这部分代码基本借鉴于abu量化系统。</p>
+<p>我们调用date_week_wave这个api来分析统计交易日震荡幅度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QsStat.date_week_wave(&#123;<span class="string">'bitcoin'</span>:bitcoin,<span class="string">'bitcoin_2y'</span>:bitcoin_2y,<span class="string">'ethereum'</span>:ethereum,<span class="string">'ethereum_2y'</span>:ethereum_2y,</span><br><span class="line">                         <span class="string">'litecoin'</span>:litecoin,<span class="string">'litecoin_2y'</span>:litecoin_2y,<span class="string">'ripple'</span>:ripple,<span class="string">'ripple_2y'</span>:ripple_2y,</span><br><span class="line">                         <span class="string">'bitcoin_cash'</span>:bitcoin_cash,<span class="string">'bitcoin_cash_2y'</span>:bitcoin_cash_2y&#125;)</span><br></pre></td></tr></table></figure>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}</code></pre><p></style><p></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>bitcoinwave</th>
+      <th>bitcoin_2ywave</th>
+      <th>ethereumwave</th>
+      <th>ethereum_2ywave</th>
+      <th>litecoinwave</th>
+      <th>litecoin_2ywave</th>
+      <th>ripplewave</th>
+      <th>ripple_2ywave</th>
+      <th>bitcoin_cashwave</th>
+      <th>bitcoin_cash_2ywave</th>
+    </tr>
+    <tr>
+      <th>date_week</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>周一</th>
+      <td>5.047973</td>
+      <td>5.520554</td>
+      <td>7.999024</td>
+      <td>6.967290</td>
+      <td>7.147234</td>
+      <td>7.746082</td>
+      <td>6.877837</td>
+      <td>7.303669</td>
+      <td>10.048055</td>
+      <td>8.909550</td>
+    </tr>
+    <tr>
+      <th>周二</th>
+      <td>4.995783</td>
+      <td>5.568326</td>
+      <td>8.885082</td>
+      <td>6.995994</td>
+      <td>7.082105</td>
+      <td>8.044266</td>
+      <td>7.620135</td>
+      <td>8.351511</td>
+      <td>10.499552</td>
+      <td>9.317082</td>
+    </tr>
+    <tr>
+      <th>周三</th>
+      <td>5.091367</td>
+      <td>5.716225</td>
+      <td>8.647018</td>
+      <td>7.269205</td>
+      <td>7.501152</td>
+      <td>7.975886</td>
+      <td>7.264176</td>
+      <td>8.173670</td>
+      <td>11.243629</td>
+      <td>9.976314</td>
+    </tr>
+    <tr>
+      <th>周四</th>
+      <td>5.483723</td>
+      <td>6.057766</td>
+      <td>8.695245</td>
+      <td>7.162547</td>
+      <td>7.308150</td>
+      <td>8.000708</td>
+      <td>8.013337</td>
+      <td>9.658080</td>
+      <td>11.151515</td>
+      <td>10.344703</td>
+    </tr>
+    <tr>
+      <th>周五</th>
+      <td>5.265453</td>
+      <td>5.648115</td>
+      <td>8.124267</td>
+      <td>7.043985</td>
+      <td>7.392838</td>
+      <td>8.758334</td>
+      <td>7.211453</td>
+      <td>8.819448</td>
+      <td>11.597110</td>
+      <td>10.163439</td>
+    </tr>
+    <tr>
+      <th>周六</th>
+      <td>4.448108</td>
+      <td>4.831158</td>
+      <td>7.369536</td>
+      <td>5.666366</td>
+      <td>6.253722</td>
+      <td>7.313875</td>
+      <td>5.996971</td>
+      <td>5.997121</td>
+      <td>9.034974</td>
+      <td>8.165628</td>
+    </tr>
+    <tr>
+      <th>周日</th>
+      <td>4.545802</td>
+      <td>4.953967</td>
+      <td>7.310093</td>
+      <td>6.146260</td>
+      <td>6.293829</td>
+      <td>6.953920</td>
+      <td>6.553537</td>
+      <td>6.364205</td>
+      <td>8.965755</td>
+      <td>8.767079</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<p>我们调用p_change_stats这个api获取统计周期内的上涨均值，下跌均值，以及数量，比值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QsStat.p_change_stats(&#123;<span class="string">'bitcoin'</span>:bitcoin,<span class="string">'bitcoin_2y'</span>:bitcoin_2y,<span class="string">'ethereum'</span>:ethereum,<span class="string">'ethereum_2y'</span>:ethereum_2y,</span><br><span class="line">                         <span class="string">'litecoin'</span>:litecoin,<span class="string">'litecoin_2y'</span>:litecoin_2y,<span class="string">'ripple'</span>:ripple,<span class="string">'ripple_2y'</span>:ripple_2y,</span><br><span class="line">                         <span class="string">'bitcoin_cash'</span>:bitcoin_cash,<span class="string">'bitcoin_cash_2y'</span>:bitcoin_cash_2y&#125;)</span><br></pre></td></tr></table></figure>
+
+<pre><code>bitcoin日涨幅平均值2.777, 共1261个交易日上涨走势
+bitcoin日跌幅平均值-2.724, 共1046个交易日下跌走势
+bitcoin日平均涨跌比1.019, 上涨下跌数量比:1.206
+
+bitcoin_2y日涨幅平均值3.013, 共398个交易日上涨走势
+bitcoin_2y日跌幅平均值-3.127, 共332个交易日下跌走势
+bitcoin_2y日平均涨跌比0.963, 上涨下跌数量比:1.199
+
+ethereum日涨幅平均值5.081, 共727个交易日上涨走势
+ethereum日跌幅平均值-3.866, 共748个交易日下跌走势
+ethereum日平均涨跌比1.315, 上涨下跌数量比:0.972
+
+ethereum_2y日涨幅平均值3.833, 共361个交易日上涨走势
+ethereum_2y日跌幅平均值-3.628, 共368个交易日下跌走势
+ethereum_2y日平均涨跌比1.057, 上涨下跌数量比:0.981
+
+litecoin日涨幅平均值4.493, 共1071个交易日上涨走势
+litecoin日跌幅平均值-3.460, 共1158个交易日下跌走势
+litecoin日平均涨跌比1.299, 上涨下跌数量比:0.925
+
+litecoin_2y日涨幅平均值4.706, 共351个交易日上涨走势
+litecoin_2y日跌幅平均值-3.881, 共379个交易日下跌走势
+litecoin_2y日平均涨跌比1.212, 上涨下跌数量比:0.926
+
+ripple日涨幅平均值5.131, 共1017个交易日上涨走势
+ripple日跌幅平均值-3.514, 共1190个交易日下跌走势
+ripple日平均涨跌比1.460, 上涨下跌数量比:0.855
+
+ripple_2y日涨幅平均值4.812, 共339个交易日上涨走势
+ripple_2y日跌幅平均值-3.661, 共390个交易日下跌走势
+ripple_2y日平均涨跌比1.314, 上涨下跌数量比:0.869
+
+bitcoin_cash日涨幅平均值6.347, 共347个交易日上涨走势
+bitcoin_cash日跌幅平均值-4.691, 共417个交易日下跌走势
+bitcoin_cash日平均涨跌比1.353, 上涨下跌数量比:0.832
+
+bitcoin_cash_2y日涨幅平均值5.833, 共331个交易日上涨走势
+bitcoin_cash_2y日跌幅平均值-4.462, 共399个交易日下跌走势
+bitcoin_cash_2y日平均涨跌比1.307, 上涨下跌数量比:0.830</code></pre><p>继续调用wave_change_rate这个api，判断币种的日振幅和涨跌幅之比，如阿布所言，这个比值对于美股在1.8以上就认为具有套利条件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">QsStat.wave_change_rate(&#123;<span class="string">'bitcoin_2y'</span>:bitcoin_2y,<span class="string">'ethereum_2y'</span>:ethereum_2y,<span class="string">'ripple_2y'</span>:ripple_2y,</span><br><span class="line">                           <span class="string">'litecoin_2y'</span>:litecoin_2y,<span class="string">'bitcoin_cash_2y'</span>:bitcoin_cash_2y&#125;)</span><br></pre></td></tr></table></figure>
+
+<pre><code>bitcoin_2y日振幅涨跌幅比：1.784864, 不具备日统计套利条件
+ethereum_2y日振幅涨跌幅比：1.812396, 具备日统计套利条件
+ripple_2y日振幅涨跌幅比：1.862999, 具备日统计套利条件
+litecoin_2y日振幅涨跌幅比：1.829557, 具备日统计套利条件
+bitcoin_cash_2y日振幅涨跌幅比：1.844508, 具备日统计套利条件</code></pre><p>QsStat中还有很多的api，使用者可以根据需要调用。</p>
+<h2>总结</h2>
+本文简单介绍了qsq中数据获取、绘图、统计特征的相关代码，并做了简单的示例。这篇简单研究的优缺点如下。<br>
+优点：
+<ol>
+<li>可以获取多币种日线数据</li>
+<li>系统简单</li>
+</ol>
+缺点：
+<ol>
+<li>获取的数据不够全面，并不支持高频数据</li>
+<li>相关api仍然不够全面</li>
+</ol>
+
+<h2>后期研究</h2>
+后面我会继续开发qsq，增加回测模块，完成一个检测策略的回测。
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantitative-trading/" rel="tag"># Quantitative trading</a>
+          
+            <a href="/tags/qsq/" rel="tag"># qsq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/18/给abu增加Binance-api接口获取加密货币价格数据/" rel="next" title="给abu增加Binance api接口获取加密货币价格数据">
+                <i class="fa fa-chevron-left"></i> 给abu增加Binance api接口获取加密货币价格数据
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/qiushui.jpg" alt="秋水">
+            
+              <p class="site-author-name" itemprop="name">秋水</p>
+              <p class="site-description motion-element" itemprop="description">闭口治世之贤良，张口乱世之枭雄</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">项目地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">数据获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">数据分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">数据加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">统计特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">后期研究</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋水</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://qiushui777.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://qiushui777.github.io/2019/08/28/qsq-paper1-data-fetch-and-analysis/';
+          this.page.identifier = '2019/08/28/qsq-paper1-data-fetch-and-analysis/';
+          this.page.title = 'qsq加密货币量化系统：数据获取和分析';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://qiushui777.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
