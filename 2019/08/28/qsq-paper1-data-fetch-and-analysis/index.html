@@ -88,7 +88,7 @@
 <meta property="og:description" content="引言 在进行加密货币的量化研究过程中，我遇到了一些困难。  很多量化交易系统专注于股票期货，对于加密货币并不友好，示范策略并没有覆盖多币种 很多离线数据集没有包含最新的一些数据，而一些api则需要付费，我个人暂时没有付费获取数据的意愿 在其他系统的基础上开发必须适配其中的很多数据结构，对我来说并不灵活  因而，我决定自己实现一个量化交易系统，并不保证系统能够超过其他的量化系统，但是这个系统会有如下">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper1/output_14_0.png">
-<meta property="og:updated_time" content="2019-08-28T13:13:46.281Z">
+<meta property="og:updated_time" content="2019-09-01T14:02:29.886Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="qsq加密货币量化系统：数据获取和分析">
 <meta name="twitter:description" content="引言 在进行加密货币的量化研究过程中，我遇到了一些困难。  很多量化交易系统专注于股票期货，对于加密货币并不友好，示范策略并没有覆盖多币种 很多离线数据集没有包含最新的一些数据，而一些api则需要付费，我个人暂时没有付费获取数据的意愿 在其他系统的基础上开发必须适配其中的很多数据结构，对我来说并不灵活  因而，我决定自己实现一个量化交易系统，并不保证系统能够超过其他的量化系统，但是这个系统会有如下">
@@ -356,7 +356,7 @@
 </ol>
 
 <h2>项目地址</h2>
-https://github.com/qiushui777/Qsabu
+https://github.com/qiushui777/qsq
 
 <p>本文位于qs_papers目录下，建议使用jupyter notebook打开学习。</p>
 <h2>数据获取</h2>
@@ -375,10 +375,10 @@ https://github.com/qiushui777/Qsabu
 
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基础库导入</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> division</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line">warnings.filterwarnings(<span class="string">'ignore'</span>)</span><br><span class="line">warnings.simplefilter(<span class="string">'ignore'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> matplotlib <span class="keyword">as</span> mpl</span><br><span class="line">%matplotlib inline</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="comment"># 使用insert 0即只使用github，避免交叉使用了pip安装的abupy，导致的版本不一致问题</span></span><br><span class="line">sys.path.insert(<span class="number">0</span>, os.path.abspath(<span class="string">'../'</span>))</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> qsq <span class="keyword">import</span> QsDataMarket, QsDrawUtil, QsStat</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> qsq <span class="keyword">import</span> QsData, QsDrawUtil, QsStat</span><br></pre></td></tr></table></figure>
 
 <p>在MarketQs中创建QsDataMarket类，这个类的关键函数是get_coin_df，可以通过这个函数来加载相应的数据集。这里我们先加载5个币种进行简单分析。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">qsmarket = QsDataMarket()</span><br><span class="line">bitcoin = qsmarket.get_coin_df(coin=<span class="string">'bitcoin'</span>)</span><br><span class="line">ethereum = qsmarket.get_coin_df(coin=<span class="string">'ethereum'</span>)</span><br><span class="line">litecoin = qsmarket.get_coin_df(coin=<span class="string">'litecoin'</span>)</span><br><span class="line">ripple = qsmarket.get_coin_df(coin=<span class="string">'ripple'</span>)</span><br><span class="line">bitcoin_cash = qsmarket.get_coin_df(coin=<span class="string">'bitcoin-cash'</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">qsmarket = QsData()</span><br><span class="line">bitcoin = qsmarket.get_coin_df(coin=<span class="string">'bitcoin'</span>)</span><br><span class="line">ethereum = qsmarket.get_coin_df(coin=<span class="string">'ethereum'</span>)</span><br><span class="line">litecoin = qsmarket.get_coin_df(coin=<span class="string">'litecoin'</span>)</span><br><span class="line">ripple = qsmarket.get_coin_df(coin=<span class="string">'ripple'</span>)</span><br><span class="line">bitcoin_cash = qsmarket.get_coin_df(coin=<span class="string">'bitcoin-cash'</span>)</span><br></pre></td></tr></table></figure>
 
 <h3>绘图</h3>
 
@@ -600,6 +600,10 @@ bitcoin_cash_2y日振幅涨跌幅比：1.844508, 具备日统计套利条件</co
 <h2>后期研究</h2>
 后面我会继续开发qsq，增加回测模块，完成一个检测策略的回测。
 
+<h2>交流方式</h2>
+email: xudong_shao#hotmail.com <br>
+qq群: 742593185
+
       
     </div>
     
@@ -774,7 +778,7 @@ bitcoin_cash_2y日振幅涨跌幅比：1.844508, 具备日统计套利条件</co
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">项目地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">数据获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">数据分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">数据加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">统计特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">后期研究</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">项目地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">数据获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">数据分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">数据加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">统计特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">后期研究</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">交流方式</span></a></li></ol></div>
             
 
           </div>
