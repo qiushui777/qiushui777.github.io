@@ -1,0 +1,2845 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Quantitative trading,qsq,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言 在《数据获取和分析》一文中，我演示了qsq是如何获取数据和进行简单分析的，在文末我也提到，下一个目标便是实现一些简单策略的回测。只有完成了基础的回测案例，才能进一步挑战和实现更加复杂的策略。所以，这篇研究中，我会演示我是如何在qsq中设计和实现一个择时策略的回测的。  项目地址 https://github.com/qiushui777/qsq  本文位于qs_papers目录下，建议使用j">
+<meta name="keywords" content="Quantitative trading,qsq">
+<meta property="og:type" content="article">
+<meta property="og:title" content="qsq加密货币量化系统：实现简单择时策略的回测">
+<meta property="og:url" content="https://qiushui777.github.io/2019/09/04/qsq-paper2-backtest/index.html">
+<meta property="og:site_name" content="秋水">
+<meta property="og:description" content="引言 在《数据获取和分析》一文中，我演示了qsq是如何获取数据和进行简单分析的，在文末我也提到，下一个目标便是实现一些简单策略的回测。只有完成了基础的回测案例，才能进一步挑战和实现更加复杂的策略。所以，这篇研究中，我会演示我是如何在qsq中设计和实现一个择时策略的回测的。  项目地址 https://github.com/qiushui777/qsq  本文位于qs_papers目录下，建议使用j">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper2/output_39_0.png">
+<meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper2/output_45_0.png">
+<meta property="og:updated_time" content="2019-09-04T12:06:07.310Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="qsq加密货币量化系统：实现简单择时策略的回测">
+<meta name="twitter:description" content="引言 在《数据获取和分析》一文中，我演示了qsq是如何获取数据和进行简单分析的，在文末我也提到，下一个目标便是实现一些简单策略的回测。只有完成了基础的回测案例，才能进一步挑战和实现更加复杂的策略。所以，这篇研究中，我会演示我是如何在qsq中设计和实现一个择时策略的回测的。  项目地址 https://github.com/qiushui777/qsq  本文位于qs_papers目录下，建议使用j">
+<meta name="twitter:image" content="https://qiushui777.github.io/images/qsq_paper2/output_39_0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qiushui777.github.io/2019/09/04/qsq-paper2-backtest/">
+
+
+
+
+
+  <title>qsq加密货币量化系统：实现简单择时策略的回测 | 秋水</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秋水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2019/09/04/qsq-paper2-backtest/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="秋水">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/qiushui.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">qsq加密货币量化系统：实现简单择时策略的回测</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-04T20:00:58+08:00">
+                2019-09-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/09/04/qsq-paper2-backtest/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/09/04/qsq-paper2-backtest/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2>引言</h2>
+在《数据获取和分析》一文中，我演示了qsq是如何获取数据和进行简单分析的，在文末我也提到，下一个目标便是实现一些简单策略的回测。只有完成了基础的回测案例，才能进一步挑战和实现更加复杂的策略。所以，这篇研究中，我会演示我是如何在qsq中设计和实现一个择时策略的回测的。
+
+<h2>项目地址</h2>
+https://github.com/qiushui777/qsq
+
+<p>本文位于qs_papers目录下，建议使用jupter notebook打开学习。</p>
+<h2>abu和小白量化回测框架代码分析</h2>
+正所谓工欲善其事，必先利其器。为了实现自己的回测框架，我阅读了abu和小白量化这两个项目的回测源码，两者的项目链接我列在了文末的参考文献中，向两个项目致敬。
+
+<h3>abu</h3>
+这里分析下abu中ABuPickTimeExecute的相关源码。可以看下其调用流程。
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#...</span></span><br><span class="line">buy_factors = [&#123;<span class="string">'xd'</span>: <span class="number">60</span>, <span class="string">'class'</span>: AbuFactorBuyBreak&#125;, </span><br><span class="line">               &#123;<span class="string">'xd'</span>: <span class="number">42</span>, <span class="string">'class'</span>: AbuFactorBuyBreak&#125;]</span><br><span class="line"><span class="comment">#...</span></span><br><span class="line">orders_pd, action_pd, _ = ABuPickTimeExecute.do_symbols_with_same_factors([<span class="string">'usTSLA'</span>],</span><br><span class="line">                                                                            benchmark,</span><br><span class="line">                                                                            buy_factors,</span><br><span class="line">                                                                            <span class="literal">None</span>,</span><br><span class="line">                                                                            capital, show=<span class="literal">True</span>)       ```       </span><br><span class="line"></span><br><span class="line">使用者自己设置一个买入和卖出因子，然后通过do_symbols_with_same_factors一天天递进，看是否触发因子，完成交易。通过跟踪do_symbols_with_same_factors会发现这里一直往下调用到ABuPickTimeWorker.py中AbuPickTimeWorker类。可以看到这个类中定义了：</span><br><span class="line"></span><br><span class="line">```python </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_week_task</span><span class="params">(self, today)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    周任务：使用self.week_buy_factors，self.week_sell_factors进行迭代</span></span><br><span class="line"><span class="string">    不需再使用hasattr进行是否支持判断fit_week</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_month_task</span><span class="params">(self, today)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    月任务：使用self.month_buy_factors，self.month_sell_factors进行迭代</span></span><br><span class="line"><span class="string">    不需再使用hasattr进行是否支持判断fit_month</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_day_task</span><span class="params">(self, today)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    日任务：迭代买入卖出因子序列进行择时</span></span><br><span class="line"><span class="string">    :param today: 今日的交易数据</span></span><br><span class="line"><span class="string">    :return:</span></span><br><span class="line"><span class="string">    """</span></span><br></pre></td></tr></table></figure>
+
+<p>也就是根据月、周、日来进行一个任务驱动的交易。如果仔细看下日任务这里。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> sell_factor <span class="keyword">in</span> self.sell_factors:</span><br><span class="line">    <span class="comment"># 迭代卖出因子，每个卖出因子针对今日交易数据，已经所以交易单进行择时</span></span><br><span class="line">    sell_factor.read_fit_day(today, self.orders)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> buy_factor <span class="keyword">in</span> self.buy_factors:</span><br><span class="line">    <span class="comment"># 如果择时买入因子没有被封锁执行任务</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> buy_factor.lock_factor:</span><br><span class="line">        <span class="comment"># 迭代买入因子，每个因子都对今天进行择时，如果生成order加入self.orders</span></span><br><span class="line">        order = buy_factor.read_fit_day(today)</span><br><span class="line">        <span class="keyword">if</span> order <span class="keyword">and</span> order.order_deal:</span><br><span class="line">            self.orders.append(order)</span><br></pre></td></tr></table></figure>
+
+<p>实际上，这里通过的是factor类的read_fit_day方法来生成订单。</p>
+<p>实际的abu系统实现较为复杂，有很多类之间的相互继承，这里只是简单分析了下。</p>
+<h3>小白量化</h3>
+
+<p>回测框架部分主要代码位于HP_sys.py中。这里关键的两个函数是Order和Trade_testing函数。</p>
+<p>Order函数中有两个if判断，分别对应于买入和卖出的操作。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> mode==<span class="number">1</span>:   <span class="comment">#买入</span></span><br><span class="line">    <span class="comment"># ...</span></span><br><span class="line"><span class="keyword">if</span> mode==<span class="number">2</span> <span class="keyword">and</span> ln&gt;<span class="number">0</span>:  <span class="comment">#卖出</span></span><br><span class="line">    <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+
+<p>因而在调用order函数的时候需要设定mode参数，决定是卖出还是买入操作。<br>当买入操作时，先计算所花金额se，然后在资金中减去这部分消费。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">se=amount*price*(<span class="number">1</span>+self.trading_Commission)</span><br><span class="line">self.money=self.money-se</span><br></pre></td></tr></table></figure>
+
+<p>接下来会把这笔交易加入交易历史中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df_new = pd.DataFrame(&#123;<span class="string">'date'</span>:date,<span class="string">'time'</span>:time,<span class="string">'mode'</span>:mode,<span class="string">'code'</span>:code,<span class="string">'amount'</span>:amount,<span class="string">'price'</span>:price,<span class="string">'money'</span>:self.money&#125;,index=[ln])</span><br><span class="line">self.trade_df=self.trade_df.append( df_new,ignore_index=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>同时，判断自己是否已经持仓这只股票，对持仓，也就是security_df进行一个操作。</p>
+<p>Trade_testing这个函数是对策略的回测，函数参数tp1为买点，参数tp2为卖点。在最初给出的链接中，作者使用了CROSS函数来生成买卖点。</p>
+<p>函数首先判断是否是买点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (df[tp1].at[i] &gt;<span class="number">0</span> <span class="keyword">and</span> self.position==<span class="literal">False</span> <span class="keyword">and</span> self.trade==<span class="literal">True</span>) :  <span class="comment">#买点</span></span><br></pre></td></tr></table></figure>
+
+<p>如果是，则开始买入。这里买入的量是将自己的资金全部花掉。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x=int(myMoney/(self.priceBuy*(<span class="number">1</span>+self.trading_Commission))/<span class="number">100</span>)</span><br><span class="line">self.amount=x*<span class="number">100.00</span></span><br></pre></td></tr></table></figure>
+
+<p>这之后，会设置一个止损价格，也就是跌到这个价格就得卖掉了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.priceStopLoss=self.priceBuy*(<span class="number">1</span>-self.stop_loss_range)</span><br></pre></td></tr></table></figure>
+
+<p>相对于的，这里还会有设置对应于卖点和止损点的判断和操作，大体过程类似。</p>
+<h2>qsq回测框架设计</h2>
+通过上面的代码分析，我发现这两个项目和我想要完成的系统有如下区别：
+<ol>
+<li>abu系统过于复杂，而且很多代码对于我来说并不需要</li>
+<li>小白量化面向初级用户，过于简单</li>
+</ol>
+所以我想要设计一个功能完善，便于我后期扩展的框架。为此，我给出了如下的架构。
+
+<p>QsAccount 类<br><br>设定帐户资金等初始参数，完成买卖操作。</p>
+<p>QsSignal 类<br><br>这个类针对择时交易，可以被用户继承和修改，定义给出交易信号的函数，produce_signal。回测可以利用这个类来判断是否买入和卖出。</p>
+<p>QsCrypto 类<br><br>这个类包含bitcoin,ethereum等，含有数据DataFrame格式。<br>提供一个接口，可以对dataframe进行操作，例如，添加n天内最高价最低价的一列，同理可以扩展更多类型的接口。</p>
+<p>TacticsQs目录<br><br>提供回测的接口，目前实现signal_day_back_test函数，针对日线进行回测。</p>
+<h2>择时策略回测</h2>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基础库导入</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> division</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line">warnings.filterwarnings(<span class="string">'ignore'</span>)</span><br><span class="line">warnings.simplefilter(<span class="string">'ignore'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> matplotlib <span class="keyword">as</span> mpl</span><br><span class="line">%matplotlib inline</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="comment"># 使用insert 0即只使用github，避免交叉使用了pip安装的abupy，导致的版本不一致问题</span></span><br><span class="line">sys.path.insert(<span class="number">0</span>, os.path.abspath(<span class="string">'../'</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> qsq <span class="keyword">import</span> QsData, QsCrypto, QsAccount, QsSignal, QsPickSignal, QsDrawUtil</span><br></pre></td></tr></table></figure>
+
+<h3>获取数据</h3>
+利用上一篇文章中实现的QsData类来获取我们想要的数据。这里以bitcoin为例。
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">data = QsData()</span><br><span class="line">bitcoin = QsCrypto(<span class="string">'bitcoin'</span>, data.get_coin_df(coin=<span class="string">'bitcoin'</span>))</span><br><span class="line">bitcoin.add_period_max(<span class="number">12</span>)</span><br><span class="line">bitcoin.add_period_min(<span class="number">15</span>)</span><br><span class="line">bitcoin.crypto_df</span><br></pre></td></tr></table></figure>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}</code></pre><p></style><p></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>open</th>
+      <th>close</th>
+      <th>high</th>
+      <th>low</th>
+      <th>volume</th>
+      <th>date</th>
+      <th>MarketCap</th>
+      <th>pre_close</th>
+      <th>date_week</th>
+      <th>p_change</th>
+      <th>12_period_max</th>
+      <th>15_period_min</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2013-04-28</th>
+      <td>135.30</td>
+      <td>134.21</td>
+      <td>135.98</td>
+      <td>132.10</td>
+      <td>NaN</td>
+      <td>20130428</td>
+      <td>1,488,566,728</td>
+      <td>NaN</td>
+      <td>6</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-04-29</th>
+      <td>134.44</td>
+      <td>144.54</td>
+      <td>147.49</td>
+      <td>134.00</td>
+      <td>NaN</td>
+      <td>20130429</td>
+      <td>1,603,768,865</td>
+      <td>134.21</td>
+      <td>0</td>
+      <td>7.697</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-04-30</th>
+      <td>144.00</td>
+      <td>139.00</td>
+      <td>146.93</td>
+      <td>134.05</td>
+      <td>NaN</td>
+      <td>20130430</td>
+      <td>1,542,813,125</td>
+      <td>144.54</td>
+      <td>1</td>
+      <td>-3.833</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-01</th>
+      <td>139.00</td>
+      <td>116.99</td>
+      <td>139.89</td>
+      <td>107.72</td>
+      <td>NaN</td>
+      <td>20130501</td>
+      <td>1,298,954,594</td>
+      <td>139.00</td>
+      <td>2</td>
+      <td>-15.835</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-02</th>
+      <td>116.38</td>
+      <td>105.21</td>
+      <td>125.60</td>
+      <td>92.28</td>
+      <td>NaN</td>
+      <td>20130502</td>
+      <td>1,168,517,495</td>
+      <td>116.99</td>
+      <td>3</td>
+      <td>-10.069</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-03</th>
+      <td>106.25</td>
+      <td>97.75</td>
+      <td>108.13</td>
+      <td>79.10</td>
+      <td>NaN</td>
+      <td>20130503</td>
+      <td>1,085,995,169</td>
+      <td>105.21</td>
+      <td>4</td>
+      <td>-7.091</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-04</th>
+      <td>98.10</td>
+      <td>112.50</td>
+      <td>115.00</td>
+      <td>92.50</td>
+      <td>NaN</td>
+      <td>20130504</td>
+      <td>1,250,316,563</td>
+      <td>97.75</td>
+      <td>5</td>
+      <td>15.090</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-05</th>
+      <td>112.90</td>
+      <td>115.91</td>
+      <td>118.80</td>
+      <td>107.14</td>
+      <td>NaN</td>
+      <td>20130505</td>
+      <td>1,288,693,176</td>
+      <td>112.50</td>
+      <td>6</td>
+      <td>3.031</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-06</th>
+      <td>115.98</td>
+      <td>112.30</td>
+      <td>124.66</td>
+      <td>106.64</td>
+      <td>NaN</td>
+      <td>20130506</td>
+      <td>1,249,023,060</td>
+      <td>115.91</td>
+      <td>0</td>
+      <td>-3.114</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-07</th>
+      <td>112.25</td>
+      <td>111.50</td>
+      <td>113.44</td>
+      <td>97.70</td>
+      <td>NaN</td>
+      <td>20130507</td>
+      <td>1,240,593,600</td>
+      <td>112.30</td>
+      <td>1</td>
+      <td>-0.712</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-08</th>
+      <td>109.60</td>
+      <td>113.57</td>
+      <td>115.78</td>
+      <td>109.60</td>
+      <td>NaN</td>
+      <td>20130508</td>
+      <td>1,264,049,202</td>
+      <td>111.50</td>
+      <td>2</td>
+      <td>1.857</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-09</th>
+      <td>113.20</td>
+      <td>112.67</td>
+      <td>113.46</td>
+      <td>109.26</td>
+      <td>NaN</td>
+      <td>20130509</td>
+      <td>1,254,535,382</td>
+      <td>113.57</td>
+      <td>3</td>
+      <td>-0.792</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-10</th>
+      <td>112.80</td>
+      <td>117.20</td>
+      <td>122.00</td>
+      <td>111.55</td>
+      <td>NaN</td>
+      <td>20130510</td>
+      <td>1,305,479,080</td>
+      <td>112.67</td>
+      <td>4</td>
+      <td>4.021</td>
+      <td>144.54</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-11</th>
+      <td>117.70</td>
+      <td>115.24</td>
+      <td>118.68</td>
+      <td>113.01</td>
+      <td>NaN</td>
+      <td>20130511</td>
+      <td>1,284,207,489</td>
+      <td>117.20</td>
+      <td>5</td>
+      <td>-1.672</td>
+      <td>144.54</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-12</th>
+      <td>115.64</td>
+      <td>115.00</td>
+      <td>117.45</td>
+      <td>113.43</td>
+      <td>NaN</td>
+      <td>20130512</td>
+      <td>1,281,982,625</td>
+      <td>115.24</td>
+      <td>6</td>
+      <td>-0.208</td>
+      <td>139.00</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2013-05-13</th>
+      <td>114.82</td>
+      <td>117.98</td>
+      <td>118.70</td>
+      <td>114.50</td>
+      <td>NaN</td>
+      <td>20130513</td>
+      <td>1,315,710,011</td>
+      <td>115.00</td>
+      <td>0</td>
+      <td>2.591</td>
+      <td>117.20</td>
+      <td>97.75</td>
+    </tr>
+    <tr>
+      <th>2013-05-14</th>
+      <td>117.98</td>
+      <td>111.50</td>
+      <td>119.80</td>
+      <td>110.25</td>
+      <td>NaN</td>
+      <td>20130514</td>
+      <td>1,243,874,488</td>
+      <td>117.98</td>
+      <td>1</td>
+      <td>-5.492</td>
+      <td>117.98</td>
+      <td>97.75</td>
+    </tr>
+    <tr>
+      <th>2013-05-15</th>
+      <td>111.40</td>
+      <td>114.22</td>
+      <td>115.81</td>
+      <td>103.50</td>
+      <td>NaN</td>
+      <td>20130515</td>
+      <td>1,274,623,813</td>
+      <td>111.50</td>
+      <td>2</td>
+      <td>2.439</td>
+      <td>117.98</td>
+      <td>97.75</td>
+    </tr>
+    <tr>
+      <th>2013-05-16</th>
+      <td>114.22</td>
+      <td>118.76</td>
+      <td>118.76</td>
+      <td>112.20</td>
+      <td>NaN</td>
+      <td>20130516</td>
+      <td>1,325,726,787</td>
+      <td>114.22</td>
+      <td>3</td>
+      <td>3.975</td>
+      <td>117.98</td>
+      <td>97.75</td>
+    </tr>
+    <tr>
+      <th>2013-05-17</th>
+      <td>118.21</td>
+      <td>123.01</td>
+      <td>125.30</td>
+      <td>116.57</td>
+      <td>NaN</td>
+      <td>20130517</td>
+      <td>1,373,723,882</td>
+      <td>118.76</td>
+      <td>4</td>
+      <td>3.579</td>
+      <td>118.76</td>
+      <td>97.75</td>
+    </tr>
+    <tr>
+      <th>2013-05-18</th>
+      <td>123.50</td>
+      <td>123.50</td>
+      <td>125.25</td>
+      <td>122.30</td>
+      <td>NaN</td>
+      <td>20130518</td>
+      <td>1,379,574,546</td>
+      <td>123.01</td>
+      <td>5</td>
+      <td>0.398</td>
+      <td>123.01</td>
+      <td>97.75</td>
+    </tr>
+    <tr>
+      <th>2013-05-19</th>
+      <td>123.21</td>
+      <td>121.99</td>
+      <td>124.50</td>
+      <td>119.57</td>
+      <td>NaN</td>
+      <td>20130519</td>
+      <td>1,363,204,703</td>
+      <td>123.50</td>
+      <td>6</td>
+      <td>-1.223</td>
+      <td>123.50</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-20</th>
+      <td>122.50</td>
+      <td>122.00</td>
+      <td>123.62</td>
+      <td>120.12</td>
+      <td>NaN</td>
+      <td>20130520</td>
+      <td>1,363,709,900</td>
+      <td>121.99</td>
+      <td>0</td>
+      <td>0.008</td>
+      <td>123.50</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-21</th>
+      <td>122.02</td>
+      <td>122.88</td>
+      <td>123.00</td>
+      <td>121.21</td>
+      <td>NaN</td>
+      <td>20130521</td>
+      <td>1,374,013,440</td>
+      <td>122.00</td>
+      <td>1</td>
+      <td>0.721</td>
+      <td>123.50</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-22</th>
+      <td>122.89</td>
+      <td>123.89</td>
+      <td>124.00</td>
+      <td>122.00</td>
+      <td>NaN</td>
+      <td>20130522</td>
+      <td>1,385,778,993</td>
+      <td>122.88</td>
+      <td>2</td>
+      <td>0.822</td>
+      <td>123.50</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-23</th>
+      <td>123.80</td>
+      <td>126.70</td>
+      <td>126.93</td>
+      <td>123.10</td>
+      <td>NaN</td>
+      <td>20130523</td>
+      <td>1,417,769,833</td>
+      <td>123.89</td>
+      <td>3</td>
+      <td>2.268</td>
+      <td>123.89</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-24</th>
+      <td>126.30</td>
+      <td>133.20</td>
+      <td>133.85</td>
+      <td>125.72</td>
+      <td>NaN</td>
+      <td>20130524</td>
+      <td>1,491,070,770</td>
+      <td>126.70</td>
+      <td>4</td>
+      <td>5.130</td>
+      <td>126.70</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-25</th>
+      <td>133.10</td>
+      <td>131.98</td>
+      <td>133.22</td>
+      <td>128.90</td>
+      <td>NaN</td>
+      <td>20130525</td>
+      <td>1,477,958,233</td>
+      <td>133.20</td>
+      <td>5</td>
+      <td>-0.916</td>
+      <td>133.20</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-26</th>
+      <td>131.99</td>
+      <td>133.48</td>
+      <td>136.00</td>
+      <td>130.62</td>
+      <td>NaN</td>
+      <td>20130526</td>
+      <td>1,495,293,015</td>
+      <td>131.98</td>
+      <td>6</td>
+      <td>1.137</td>
+      <td>133.20</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>2013-05-27</th>
+      <td>133.50</td>
+      <td>129.74</td>
+      <td>135.46</td>
+      <td>124.70</td>
+      <td>NaN</td>
+      <td>20130527</td>
+      <td>1,454,029,510</td>
+      <td>133.48</td>
+      <td>0</td>
+      <td>-2.802</td>
+      <td>133.48</td>
+      <td>111.50</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2019-07-28</th>
+      <td>9491.63</td>
+      <td>9552.86</td>
+      <td>9575.55</td>
+      <td>9252.30</td>
+      <td>13,738,687,093</td>
+      <td>20190728</td>
+      <td>170,461,958,074</td>
+      <td>9477.68</td>
+      <td>6</td>
+      <td>0.793</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-07-29</th>
+      <td>9548.18</td>
+      <td>9519.15</td>
+      <td>9681.65</td>
+      <td>9472.95</td>
+      <td>13,791,445,323</td>
+      <td>20190729</td>
+      <td>169,880,343,827</td>
+      <td>9552.86</td>
+      <td>0</td>
+      <td>-0.353</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-07-30</th>
+      <td>9522.33</td>
+      <td>9607.42</td>
+      <td>9701.76</td>
+      <td>9437.34</td>
+      <td>13,829,811,132</td>
+      <td>20190730</td>
+      <td>171,472,452,506</td>
+      <td>9519.15</td>
+      <td>1</td>
+      <td>0.927</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-07-31</th>
+      <td>9604.05</td>
+      <td>10085.63</td>
+      <td>10085.63</td>
+      <td>9598.10</td>
+      <td>16,631,520,648</td>
+      <td>20190731</td>
+      <td>180,028,959,603</td>
+      <td>9607.42</td>
+      <td>2</td>
+      <td>4.978</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-08-01</th>
+      <td>10077.44</td>
+      <td>10399.67</td>
+      <td>10446.92</td>
+      <td>9922.02</td>
+      <td>17,165,337,858</td>
+      <td>20190801</td>
+      <td>185,653,203,391</td>
+      <td>10085.63</td>
+      <td>3</td>
+      <td>3.114</td>
+      <td>10767.14</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-02</th>
+      <td>10402.04</td>
+      <td>10518.17</td>
+      <td>10657.95</td>
+      <td>10371.01</td>
+      <td>17,489,094,082</td>
+      <td>20190802</td>
+      <td>187,791,090,996</td>
+      <td>10399.67</td>
+      <td>4</td>
+      <td>1.139</td>
+      <td>10599.11</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-03</th>
+      <td>10519.28</td>
+      <td>10821.73</td>
+      <td>10946.78</td>
+      <td>10503.50</td>
+      <td>15,352,685,061</td>
+      <td>20190803</td>
+      <td>193,233,960,601</td>
+      <td>10518.17</td>
+      <td>5</td>
+      <td>2.886</td>
+      <td>10518.17</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-04</th>
+      <td>10821.63</td>
+      <td>10970.18</td>
+      <td>11009.21</td>
+      <td>10620.28</td>
+      <td>16,530,894,787</td>
+      <td>20190804</td>
+      <td>195,907,875,403</td>
+      <td>10821.73</td>
+      <td>6</td>
+      <td>1.372</td>
+      <td>10821.73</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-05</th>
+      <td>10960.74</td>
+      <td>11805.65</td>
+      <td>11895.09</td>
+      <td>10960.74</td>
+      <td>23,875,988,832</td>
+      <td>20190805</td>
+      <td>210,848,822,060</td>
+      <td>10970.18</td>
+      <td>0</td>
+      <td>7.616</td>
+      <td>10970.18</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-06</th>
+      <td>11811.55</td>
+      <td>11478.17</td>
+      <td>12273.82</td>
+      <td>11290.73</td>
+      <td>23,635,107,660</td>
+      <td>20190806</td>
+      <td>205,023,347,814</td>
+      <td>11805.65</td>
+      <td>1</td>
+      <td>-2.774</td>
+      <td>11805.65</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-07</th>
+      <td>11476.19</td>
+      <td>11941.97</td>
+      <td>12036.99</td>
+      <td>11433.70</td>
+      <td>22,194,988,641</td>
+      <td>20190807</td>
+      <td>213,330,426,789</td>
+      <td>11478.17</td>
+      <td>2</td>
+      <td>4.041</td>
+      <td>11805.65</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-08</th>
+      <td>11954.04</td>
+      <td>11966.41</td>
+      <td>11979.42</td>
+      <td>11556.17</td>
+      <td>19,481,591,730</td>
+      <td>20190808</td>
+      <td>213,788,089,212</td>
+      <td>11941.97</td>
+      <td>3</td>
+      <td>0.205</td>
+      <td>11941.97</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-09</th>
+      <td>11953.47</td>
+      <td>11862.94</td>
+      <td>11970.46</td>
+      <td>11709.75</td>
+      <td>18,339,989,960</td>
+      <td>20190809</td>
+      <td>211,961,319,133</td>
+      <td>11966.41</td>
+      <td>4</td>
+      <td>-0.865</td>
+      <td>11966.41</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-10</th>
+      <td>11861.56</td>
+      <td>11354.02</td>
+      <td>11915.66</td>
+      <td>11323.90</td>
+      <td>18,125,355,447</td>
+      <td>20190810</td>
+      <td>202,890,020,455</td>
+      <td>11862.94</td>
+      <td>5</td>
+      <td>-4.290</td>
+      <td>11966.41</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-11</th>
+      <td>11349.74</td>
+      <td>11523.58</td>
+      <td>11523.58</td>
+      <td>11248.29</td>
+      <td>15,774,371,518</td>
+      <td>20190811</td>
+      <td>205,941,632,235</td>
+      <td>11354.02</td>
+      <td>6</td>
+      <td>1.493</td>
+      <td>11966.41</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-12</th>
+      <td>11528.19</td>
+      <td>11382.62</td>
+      <td>11528.19</td>
+      <td>11320.95</td>
+      <td>13,647,198,229</td>
+      <td>20190812</td>
+      <td>203,441,494,985</td>
+      <td>11523.58</td>
+      <td>0</td>
+      <td>-1.223</td>
+      <td>11966.41</td>
+      <td>9519.15</td>
+    </tr>
+    <tr>
+      <th>2019-08-13</th>
+      <td>11385.05</td>
+      <td>10895.83</td>
+      <td>11420.05</td>
+      <td>10830.33</td>
+      <td>16,681,503,537</td>
+      <td>20190813</td>
+      <td>194,762,696,644</td>
+      <td>11382.62</td>
+      <td>1</td>
+      <td>-4.277</td>
+      <td>11966.41</td>
+      <td>9519.15</td>
+    </tr>
+    <tr>
+      <th>2019-08-14</th>
+      <td>10889.49</td>
+      <td>10051.70</td>
+      <td>10889.56</td>
+      <td>10028.14</td>
+      <td>19,990,838,300</td>
+      <td>20190814</td>
+      <td>179,692,803,424</td>
+      <td>10895.83</td>
+      <td>2</td>
+      <td>-7.747</td>
+      <td>11966.41</td>
+      <td>9607.42</td>
+    </tr>
+    <tr>
+      <th>2019-08-15</th>
+      <td>10038.42</td>
+      <td>10311.55</td>
+      <td>10437.41</td>
+      <td>9675.32</td>
+      <td>22,899,115,082</td>
+      <td>20190815</td>
+      <td>184,357,666,577</td>
+      <td>10051.70</td>
+      <td>3</td>
+      <td>2.585</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-16</th>
+      <td>10319.42</td>
+      <td>10374.34</td>
+      <td>10524.35</td>
+      <td>9855.48</td>
+      <td>20,228,207,096</td>
+      <td>20190816</td>
+      <td>185,500,055,339</td>
+      <td>10311.55</td>
+      <td>4</td>
+      <td>0.609</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-17</th>
+      <td>10358.72</td>
+      <td>10231.74</td>
+      <td>10452.62</td>
+      <td>10086.70</td>
+      <td>13,778,035,685</td>
+      <td>20190817</td>
+      <td>182,966,857,173</td>
+      <td>10374.34</td>
+      <td>5</td>
+      <td>-1.375</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-18</th>
+      <td>10233.01</td>
+      <td>10345.81</td>
+      <td>10487.07</td>
+      <td>10119.09</td>
+      <td>12,999,813,869</td>
+      <td>20190818</td>
+      <td>185,022,920,955</td>
+      <td>10231.74</td>
+      <td>6</td>
+      <td>1.115</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-19</th>
+      <td>10350.28</td>
+      <td>10916.05</td>
+      <td>10916.05</td>
+      <td>10313.20</td>
+      <td>16,038,264,603</td>
+      <td>20190819</td>
+      <td>195,243,306,008</td>
+      <td>10345.81</td>
+      <td>0</td>
+      <td>5.512</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-20</th>
+      <td>10916.35</td>
+      <td>10763.23</td>
+      <td>10947.04</td>
+      <td>10618.96</td>
+      <td>15,053,082,175</td>
+      <td>20190820</td>
+      <td>192,530,283,565</td>
+      <td>10916.05</td>
+      <td>1</td>
+      <td>-1.400</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-21</th>
+      <td>10764.57</td>
+      <td>10138.05</td>
+      <td>10798.73</td>
+      <td>9962.72</td>
+      <td>19,473,084,768</td>
+      <td>20190821</td>
+      <td>181,364,502,142</td>
+      <td>10763.23</td>
+      <td>2</td>
+      <td>-5.808</td>
+      <td>11862.94</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-22</th>
+      <td>10142.52</td>
+      <td>10131.06</td>
+      <td>10233.00</td>
+      <td>9831.46</td>
+      <td>17,097,508,856</td>
+      <td>20190822</td>
+      <td>181,257,125,783</td>
+      <td>10138.05</td>
+      <td>3</td>
+      <td>-0.069</td>
+      <td>11523.58</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-23</th>
+      <td>10136.31</td>
+      <td>10407.97</td>
+      <td>10442.44</td>
+      <td>10078.19</td>
+      <td>15,627,023,886</td>
+      <td>20190823</td>
+      <td>186,231,409,722</td>
+      <td>10131.06</td>
+      <td>4</td>
+      <td>2.733</td>
+      <td>11523.58</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-24</th>
+      <td>10407.64</td>
+      <td>10159.96</td>
+      <td>10418.02</td>
+      <td>9982.30</td>
+      <td>15,451,030,650</td>
+      <td>20190824</td>
+      <td>181,813,631,752</td>
+      <td>10407.97</td>
+      <td>5</td>
+      <td>-2.383</td>
+      <td>11382.62</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-25</th>
+      <td>10160.74</td>
+      <td>10138.52</td>
+      <td>10304.62</td>
+      <td>10008.79</td>
+      <td>14,153,856,610</td>
+      <td>20190825</td>
+      <td>181,450,186,164</td>
+      <td>10159.96</td>
+      <td>6</td>
+      <td>-0.211</td>
+      <td>10916.05</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-26</th>
+      <td>10126.30</td>
+      <td>10370.82</td>
+      <td>10512.33</td>
+      <td>10126.30</td>
+      <td>18,438,654,080</td>
+      <td>20190826</td>
+      <td>185,625,235,889</td>
+      <td>10138.52</td>
+      <td>0</td>
+      <td>2.291</td>
+      <td>10916.05</td>
+      <td>10051.70</td>
+    </tr>
+  </tbody>
+</table>
+<p>2312 rows × 12 columns</p>
+</div>
+
+
+
+<p>这里我们加入了12日最高价和15日最低价，这是因为择时策略中我选择了当价格高于12日最高时买入，低于15日最低时卖出。</p>
+<h3>定义信号</h3>
+我们要调用的signal_day_back_test函数需要调用买入和卖出信号。所以这里我们使用QsSignal类来自定义信号。这里需要注意的时其中的mode时买卖方向，0为不操作，1为买入，2为卖出。symbol是买卖的币种。percent是使用多少资金进行交易。
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">buysignal</span><span class="params">(QsSignal)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">produce_signal</span><span class="params">(self,param)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.crypto.crypto_df.loc[param][<span class="string">'12_period_max'</span>] == np.NaN:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">0</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line">        <span class="keyword">if</span> self.crypto.crypto_df.loc[param][<span class="string">'close'</span>] &gt; self.crypto.crypto_df.loc[param][<span class="string">'12_period_max'</span>]:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">1</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">0</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">sellsignal</span><span class="params">(QsSignal)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">produce_signal</span><span class="params">(self,param)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.crypto.crypto_df.loc[param][<span class="string">'15_period_min'</span>] == np.NaN:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">0</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line">        <span class="keyword">if</span> self.crypto.crypto_df.loc[param][<span class="string">'close'</span>] &lt; self.crypto.crypto_df.loc[param][<span class="string">'15_period_min'</span>]:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">2</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">0</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line">buy_sig = buysignal(bitcoin)</span><br><span class="line">sell_sig = sellsignal(bitcoin)</span><br></pre></td></tr></table></figure>
+
+<h3>开始回测</h3>
+完成上述操作后，可以进行回测。
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">myaccount = QsAccount()</span><br><span class="line">QsPickSignal.signal_day_back_test(myaccount,buy_sig,sell_sig)</span><br></pre></td></tr></table></figure>
+
+<pre><code>2019-09-04 15:12:54,614 - INFO - start back test...
+2019-09-04 15:12:54,716 - INFO - 2013-05-13 buy bitcoin 8471.776995042062
+2019-09-04 15:12:54,720 - INFO - The asset is 999500.2498750625
+2019-09-04 15:12:54,743 - INFO - 2013-05-14 stop loss bitcoin 8471.776995042062
+2019-09-04 15:12:54,747 - INFO - The asset is 944130.8333797163
+2019-09-04 15:12:54,768 - INFO - 2013-05-16 buy bitcoin 7945.93300671756
+......
+2019-09-04 15:13:05,253 - INFO - The asset is 74024044.48192468
+2019-09-04 15:13:05,370 - INFO - 2019-02-08 buy bitcoin 20177.662951266906
+2019-09-04 15:13:05,370 - INFO - The asset is 73987050.95644647
+2019-09-04 15:13:05,829 - INFO - 2019-06-09 sell bitcoin 20177.662951266906
+2019-09-04 15:13:05,829 - INFO - The asset is 155049923.2388849
+2019-09-04 15:13:05,873 - INFO - 2019-06-15 buy bitcoin 17534.031917656263
+2019-09-04 15:13:05,874 - INFO - The asset is 154972437.02037472
+2019-09-04 15:13:05,985 - INFO - 2019-07-14 sell bitcoin 17534.031917656263
+2019-09-04 15:13:05,985 - INFO - The asset is 179740168.34770295
+2019-09-04 15:13:06,086 - INFO - 2019-08-03 buy bitcoin 16600.889430443644
+2019-09-04 15:13:06,086 - INFO - The asset is 179650343.17611492
+2019-09-04 15:13:06,153 - INFO - 2019-08-14 stop loss bitcoin 16600.889430443644
+2019-09-04 15:13:06,154 - INFO - The asset is 166783726.70784643</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">myaccount.balance</span><br></pre></td></tr></table></figure>
+
+<pre><code>166783726.70784643</code></pre><p>由于初始资金我设置了100万美金，通过上述可以看出，我们的回报率是160倍。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">QsDrawUtil.plot_dfs(&#123;<span class="string">'bitcoin'</span>:bitcoin.crypto_df.close,<span class="string">'asset'</span>:myaccount.asset.asset&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/qsq_paper2/output_39_0.png" alt></p>
+<p>可以看出，这个策略在17年大涨的时候没有跑过大盘，但是在19年大涨的过程中获得了不错的收益。为此，我决定尝试下单独在过去的一年时间段内进行回测。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bitcoin.crypto_df = bitcoin.crypto_df[<span class="number">-365</span>:]</span><br><span class="line">bitcoin.crypto_df</span><br></pre></td></tr></table></figure>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}</code></pre><p></style><p></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>open</th>
+      <th>close</th>
+      <th>high</th>
+      <th>low</th>
+      <th>volume</th>
+      <th>date</th>
+      <th>MarketCap</th>
+      <th>pre_close</th>
+      <th>date_week</th>
+      <th>p_change</th>
+      <th>12_period_max</th>
+      <th>15_period_min</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2018-08-27</th>
+      <td>6710.80</td>
+      <td>6884.64</td>
+      <td>6884.64</td>
+      <td>6689.71</td>
+      <td>4,019,000,000</td>
+      <td>20180827</td>
+      <td>118,657,885,712</td>
+      <td>6707.26</td>
+      <td>0</td>
+      <td>2.645</td>
+      <td>6763.19</td>
+      <td>6199.71</td>
+    </tr>
+    <tr>
+      <th>2018-08-28</th>
+      <td>6891.08</td>
+      <td>7096.28</td>
+      <td>7109.56</td>
+      <td>6882.34</td>
+      <td>4,659,940,000</td>
+      <td>20180828</td>
+      <td>122,319,195,736</td>
+      <td>6884.64</td>
+      <td>1</td>
+      <td>3.074</td>
+      <td>6884.64</td>
+      <td>6199.71</td>
+    </tr>
+    <tr>
+      <th>2018-08-29</th>
+      <td>7091.71</td>
+      <td>7047.16</td>
+      <td>7113.30</td>
+      <td>6970.82</td>
+      <td>4,145,880,000</td>
+      <td>20180829</td>
+      <td>121,484,666,374</td>
+      <td>7096.28</td>
+      <td>2</td>
+      <td>-0.692</td>
+      <td>7096.28</td>
+      <td>6199.71</td>
+    </tr>
+    <tr>
+      <th>2018-08-30</th>
+      <td>7043.76</td>
+      <td>6978.23</td>
+      <td>7072.69</td>
+      <td>6834.69</td>
+      <td>4,463,250,000</td>
+      <td>20180830</td>
+      <td>120,309,828,156</td>
+      <td>7047.16</td>
+      <td>3</td>
+      <td>-0.978</td>
+      <td>7096.28</td>
+      <td>6308.52</td>
+    </tr>
+    <tr>
+      <th>2018-08-31</th>
+      <td>6973.97</td>
+      <td>7037.58</td>
+      <td>7057.17</td>
+      <td>6920.16</td>
+      <td>4,495,650,000</td>
+      <td>20180831</td>
+      <td>121,346,613,238</td>
+      <td>6978.23</td>
+      <td>4</td>
+      <td>0.851</td>
+      <td>7096.28</td>
+      <td>6308.53</td>
+    </tr>
+    <tr>
+      <th>2018-09-01</th>
+      <td>7044.81</td>
+      <td>7193.25</td>
+      <td>7242.29</td>
+      <td>7038.05</td>
+      <td>4,116,050,000</td>
+      <td>20180901</td>
+      <td>124,044,625,438</td>
+      <td>7037.58</td>
+      <td>5</td>
+      <td>2.212</td>
+      <td>7096.28</td>
+      <td>6308.53</td>
+    </tr>
+    <tr>
+      <th>2018-09-02</th>
+      <td>7189.58</td>
+      <td>7272.72</td>
+      <td>7306.31</td>
+      <td>7132.16</td>
+      <td>4,329,540,000</td>
+      <td>20180902</td>
+      <td>125,427,780,027</td>
+      <td>7193.25</td>
+      <td>6</td>
+      <td>1.105</td>
+      <td>7193.25</td>
+      <td>6308.53</td>
+    </tr>
+    <tr>
+      <th>2018-09-03</th>
+      <td>7279.03</td>
+      <td>7260.06</td>
+      <td>7317.94</td>
+      <td>7208.15</td>
+      <td>4,087,760,000</td>
+      <td>20180903</td>
+      <td>125,222,785,390</td>
+      <td>7272.72</td>
+      <td>0</td>
+      <td>-0.174</td>
+      <td>7272.72</td>
+      <td>6308.53</td>
+    </tr>
+    <tr>
+      <th>2018-09-04</th>
+      <td>7263.00</td>
+      <td>7361.66</td>
+      <td>7388.26</td>
+      <td>7255.44</td>
+      <td>4,273,640,000</td>
+      <td>20180904</td>
+      <td>126,986,882,925</td>
+      <td>7260.06</td>
+      <td>1</td>
+      <td>1.399</td>
+      <td>7272.72</td>
+      <td>6308.53</td>
+    </tr>
+    <tr>
+      <th>2018-09-05</th>
+      <td>7361.46</td>
+      <td>6792.83</td>
+      <td>7388.43</td>
+      <td>6792.83</td>
+      <td>5,800,460,000</td>
+      <td>20180905</td>
+      <td>117,185,657,641</td>
+      <td>7361.66</td>
+      <td>2</td>
+      <td>-7.727</td>
+      <td>7361.66</td>
+      <td>6376.71</td>
+    </tr>
+    <tr>
+      <th>2018-09-06</th>
+      <td>6755.14</td>
+      <td>6529.17</td>
+      <td>6755.14</td>
+      <td>6404.72</td>
+      <td>5,523,470,000</td>
+      <td>20180906</td>
+      <td>112,649,565,532</td>
+      <td>6792.83</td>
+      <td>3</td>
+      <td>-3.881</td>
+      <td>7361.66</td>
+      <td>6376.71</td>
+    </tr>
+    <tr>
+      <th>2018-09-07</th>
+      <td>6528.92</td>
+      <td>6467.07</td>
+      <td>6555.29</td>
+      <td>6396.87</td>
+      <td>4,264,680,000</td>
+      <td>20180907</td>
+      <td>111,590,424,587</td>
+      <td>6529.17</td>
+      <td>4</td>
+      <td>-0.951</td>
+      <td>7361.66</td>
+      <td>6529.17</td>
+    </tr>
+    <tr>
+      <th>2018-09-08</th>
+      <td>6460.17</td>
+      <td>6225.98</td>
+      <td>6534.25</td>
+      <td>6197.52</td>
+      <td>3,835,060,000</td>
+      <td>20180908</td>
+      <td>107,442,122,871</td>
+      <td>6467.07</td>
+      <td>5</td>
+      <td>-3.728</td>
+      <td>7361.66</td>
+      <td>6467.07</td>
+    </tr>
+    <tr>
+      <th>2018-09-09</th>
+      <td>6223.38</td>
+      <td>6300.86</td>
+      <td>6446.26</td>
+      <td>6201.22</td>
+      <td>3,671,890,000</td>
+      <td>20180909</td>
+      <td>108,747,090,915</td>
+      <td>6225.98</td>
+      <td>6</td>
+      <td>1.203</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-10</th>
+      <td>6301.57</td>
+      <td>6329.70</td>
+      <td>6374.98</td>
+      <td>6292.76</td>
+      <td>3,714,100,000</td>
+      <td>20180910</td>
+      <td>109,255,603,474</td>
+      <td>6300.86</td>
+      <td>0</td>
+      <td>0.458</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-11</th>
+      <td>6331.88</td>
+      <td>6321.20</td>
+      <td>6398.92</td>
+      <td>6260.21</td>
+      <td>3,849,910,000</td>
+      <td>20180911</td>
+      <td>109,119,948,884</td>
+      <td>6329.70</td>
+      <td>1</td>
+      <td>-0.134</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-12</th>
+      <td>6317.01</td>
+      <td>6351.80</td>
+      <td>6363.87</td>
+      <td>6265.09</td>
+      <td>4,064,230,000</td>
+      <td>20180912</td>
+      <td>109,661,521,297</td>
+      <td>6321.20</td>
+      <td>2</td>
+      <td>0.484</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-13</th>
+      <td>6354.24</td>
+      <td>6517.31</td>
+      <td>6535.41</td>
+      <td>6354.24</td>
+      <td>4,210,910,000</td>
+      <td>20180913</td>
+      <td>112,530,970,182</td>
+      <td>6351.80</td>
+      <td>3</td>
+      <td>2.606</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-14</th>
+      <td>6515.41</td>
+      <td>6512.71</td>
+      <td>6596.10</td>
+      <td>6456.17</td>
+      <td>4,076,220,000</td>
+      <td>20180914</td>
+      <td>112,462,453,186</td>
+      <td>6517.31</td>
+      <td>4</td>
+      <td>-0.071</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-15</th>
+      <td>6509.40</td>
+      <td>6543.20</td>
+      <td>6561.72</td>
+      <td>6493.55</td>
+      <td>3,216,300,000</td>
+      <td>20180915</td>
+      <td>113,000,324,618</td>
+      <td>6512.71</td>
+      <td>5</td>
+      <td>0.468</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-16</th>
+      <td>6536.68</td>
+      <td>6517.18</td>
+      <td>6544.33</td>
+      <td>6460.10</td>
+      <td>3,273,730,000</td>
+      <td>20180916</td>
+      <td>112,562,367,224</td>
+      <td>6543.20</td>
+      <td>6</td>
+      <td>-0.398</td>
+      <td>7361.66</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-17</th>
+      <td>6514.06</td>
+      <td>6281.20</td>
+      <td>6540.21</td>
+      <td>6257.52</td>
+      <td>3,910,780,000</td>
+      <td>20180917</td>
+      <td>108,497,127,334</td>
+      <td>6517.18</td>
+      <td>0</td>
+      <td>-3.621</td>
+      <td>6792.83</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-18</th>
+      <td>6280.91</td>
+      <td>6371.30</td>
+      <td>6384.18</td>
+      <td>6265.71</td>
+      <td>4,180,090,000</td>
+      <td>20180918</td>
+      <td>110,064,685,348</td>
+      <td>6281.20</td>
+      <td>1</td>
+      <td>1.434</td>
+      <td>6543.20</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-19</th>
+      <td>6371.85</td>
+      <td>6398.54</td>
+      <td>6448.46</td>
+      <td>6208.34</td>
+      <td>4,431,340,000</td>
+      <td>20180919</td>
+      <td>110,547,735,544</td>
+      <td>6371.30</td>
+      <td>2</td>
+      <td>0.428</td>
+      <td>6543.20</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-20</th>
+      <td>6398.85</td>
+      <td>6519.67</td>
+      <td>6529.26</td>
+      <td>6395.95</td>
+      <td>4,348,110,000</td>
+      <td>20180920</td>
+      <td>112,653,130,183</td>
+      <td>6398.54</td>
+      <td>3</td>
+      <td>1.893</td>
+      <td>6543.20</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-21</th>
+      <td>6513.87</td>
+      <td>6734.95</td>
+      <td>6794.33</td>
+      <td>6496.36</td>
+      <td>6,531,940,000</td>
+      <td>20180921</td>
+      <td>116,385,068,032</td>
+      <td>6519.67</td>
+      <td>4</td>
+      <td>3.302</td>
+      <td>6543.20</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-22</th>
+      <td>6735.05</td>
+      <td>6721.98</td>
+      <td>6814.56</td>
+      <td>6616.80</td>
+      <td>4,509,660,000</td>
+      <td>20180922</td>
+      <td>116,173,876,360</td>
+      <td>6734.95</td>
+      <td>5</td>
+      <td>-0.193</td>
+      <td>6734.95</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-23</th>
+      <td>6715.32</td>
+      <td>6710.63</td>
+      <td>6766.15</td>
+      <td>6679.42</td>
+      <td>4,197,500,000</td>
+      <td>20180923</td>
+      <td>115,990,387,532</td>
+      <td>6721.98</td>
+      <td>6</td>
+      <td>-0.169</td>
+      <td>6734.95</td>
+      <td>6225.98</td>
+    </tr>
+    <tr>
+      <th>2018-09-24</th>
+      <td>6704.77</td>
+      <td>6595.41</td>
+      <td>6713.56</td>
+      <td>6580.90</td>
+      <td>4,177,310,000</td>
+      <td>20180924</td>
+      <td>114,011,060,309</td>
+      <td>6710.63</td>
+      <td>0</td>
+      <td>-1.717</td>
+      <td>6734.95</td>
+      <td>6281.20</td>
+    </tr>
+    <tr>
+      <th>2018-09-25</th>
+      <td>6603.64</td>
+      <td>6446.47</td>
+      <td>6603.64</td>
+      <td>6381.86</td>
+      <td>4,726,180,000</td>
+      <td>20180925</td>
+      <td>111,450,035,114</td>
+      <td>6595.41</td>
+      <td>1</td>
+      <td>-2.258</td>
+      <td>6734.95</td>
+      <td>6281.20</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2019-07-28</th>
+      <td>9491.63</td>
+      <td>9552.86</td>
+      <td>9575.55</td>
+      <td>9252.30</td>
+      <td>13,738,687,093</td>
+      <td>20190728</td>
+      <td>170,461,958,074</td>
+      <td>9477.68</td>
+      <td>6</td>
+      <td>0.793</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-07-29</th>
+      <td>9548.18</td>
+      <td>9519.15</td>
+      <td>9681.65</td>
+      <td>9472.95</td>
+      <td>13,791,445,323</td>
+      <td>20190729</td>
+      <td>169,880,343,827</td>
+      <td>9552.86</td>
+      <td>0</td>
+      <td>-0.353</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-07-30</th>
+      <td>9522.33</td>
+      <td>9607.42</td>
+      <td>9701.76</td>
+      <td>9437.34</td>
+      <td>13,829,811,132</td>
+      <td>20190730</td>
+      <td>171,472,452,506</td>
+      <td>9519.15</td>
+      <td>1</td>
+      <td>0.927</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-07-31</th>
+      <td>9604.05</td>
+      <td>10085.63</td>
+      <td>10085.63</td>
+      <td>9598.10</td>
+      <td>16,631,520,648</td>
+      <td>20190731</td>
+      <td>180,028,959,603</td>
+      <td>9607.42</td>
+      <td>2</td>
+      <td>4.978</td>
+      <td>10767.14</td>
+      <td>9477.64</td>
+    </tr>
+    <tr>
+      <th>2019-08-01</th>
+      <td>10077.44</td>
+      <td>10399.67</td>
+      <td>10446.92</td>
+      <td>9922.02</td>
+      <td>17,165,337,858</td>
+      <td>20190801</td>
+      <td>185,653,203,391</td>
+      <td>10085.63</td>
+      <td>3</td>
+      <td>3.114</td>
+      <td>10767.14</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-02</th>
+      <td>10402.04</td>
+      <td>10518.17</td>
+      <td>10657.95</td>
+      <td>10371.01</td>
+      <td>17,489,094,082</td>
+      <td>20190802</td>
+      <td>187,791,090,996</td>
+      <td>10399.67</td>
+      <td>4</td>
+      <td>1.139</td>
+      <td>10599.11</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-03</th>
+      <td>10519.28</td>
+      <td>10821.73</td>
+      <td>10946.78</td>
+      <td>10503.50</td>
+      <td>15,352,685,061</td>
+      <td>20190803</td>
+      <td>193,233,960,601</td>
+      <td>10518.17</td>
+      <td>5</td>
+      <td>2.886</td>
+      <td>10518.17</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-04</th>
+      <td>10821.63</td>
+      <td>10970.18</td>
+      <td>11009.21</td>
+      <td>10620.28</td>
+      <td>16,530,894,787</td>
+      <td>20190804</td>
+      <td>195,907,875,403</td>
+      <td>10821.73</td>
+      <td>6</td>
+      <td>1.372</td>
+      <td>10821.73</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-05</th>
+      <td>10960.74</td>
+      <td>11805.65</td>
+      <td>11895.09</td>
+      <td>10960.74</td>
+      <td>23,875,988,832</td>
+      <td>20190805</td>
+      <td>210,848,822,060</td>
+      <td>10970.18</td>
+      <td>0</td>
+      <td>7.616</td>
+      <td>10970.18</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-06</th>
+      <td>11811.55</td>
+      <td>11478.17</td>
+      <td>12273.82</td>
+      <td>11290.73</td>
+      <td>23,635,107,660</td>
+      <td>20190806</td>
+      <td>205,023,347,814</td>
+      <td>11805.65</td>
+      <td>1</td>
+      <td>-2.774</td>
+      <td>11805.65</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-07</th>
+      <td>11476.19</td>
+      <td>11941.97</td>
+      <td>12036.99</td>
+      <td>11433.70</td>
+      <td>22,194,988,641</td>
+      <td>20190807</td>
+      <td>213,330,426,789</td>
+      <td>11478.17</td>
+      <td>2</td>
+      <td>4.041</td>
+      <td>11805.65</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-08</th>
+      <td>11954.04</td>
+      <td>11966.41</td>
+      <td>11979.42</td>
+      <td>11556.17</td>
+      <td>19,481,591,730</td>
+      <td>20190808</td>
+      <td>213,788,089,212</td>
+      <td>11941.97</td>
+      <td>3</td>
+      <td>0.205</td>
+      <td>11941.97</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-09</th>
+      <td>11953.47</td>
+      <td>11862.94</td>
+      <td>11970.46</td>
+      <td>11709.75</td>
+      <td>18,339,989,960</td>
+      <td>20190809</td>
+      <td>211,961,319,133</td>
+      <td>11966.41</td>
+      <td>4</td>
+      <td>-0.865</td>
+      <td>11966.41</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-10</th>
+      <td>11861.56</td>
+      <td>11354.02</td>
+      <td>11915.66</td>
+      <td>11323.90</td>
+      <td>18,125,355,447</td>
+      <td>20190810</td>
+      <td>202,890,020,455</td>
+      <td>11862.94</td>
+      <td>5</td>
+      <td>-4.290</td>
+      <td>11966.41</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-11</th>
+      <td>11349.74</td>
+      <td>11523.58</td>
+      <td>11523.58</td>
+      <td>11248.29</td>
+      <td>15,774,371,518</td>
+      <td>20190811</td>
+      <td>205,941,632,235</td>
+      <td>11354.02</td>
+      <td>6</td>
+      <td>1.493</td>
+      <td>11966.41</td>
+      <td>9477.68</td>
+    </tr>
+    <tr>
+      <th>2019-08-12</th>
+      <td>11528.19</td>
+      <td>11382.62</td>
+      <td>11528.19</td>
+      <td>11320.95</td>
+      <td>13,647,198,229</td>
+      <td>20190812</td>
+      <td>203,441,494,985</td>
+      <td>11523.58</td>
+      <td>0</td>
+      <td>-1.223</td>
+      <td>11966.41</td>
+      <td>9519.15</td>
+    </tr>
+    <tr>
+      <th>2019-08-13</th>
+      <td>11385.05</td>
+      <td>10895.83</td>
+      <td>11420.05</td>
+      <td>10830.33</td>
+      <td>16,681,503,537</td>
+      <td>20190813</td>
+      <td>194,762,696,644</td>
+      <td>11382.62</td>
+      <td>1</td>
+      <td>-4.277</td>
+      <td>11966.41</td>
+      <td>9519.15</td>
+    </tr>
+    <tr>
+      <th>2019-08-14</th>
+      <td>10889.49</td>
+      <td>10051.70</td>
+      <td>10889.56</td>
+      <td>10028.14</td>
+      <td>19,990,838,300</td>
+      <td>20190814</td>
+      <td>179,692,803,424</td>
+      <td>10895.83</td>
+      <td>2</td>
+      <td>-7.747</td>
+      <td>11966.41</td>
+      <td>9607.42</td>
+    </tr>
+    <tr>
+      <th>2019-08-15</th>
+      <td>10038.42</td>
+      <td>10311.55</td>
+      <td>10437.41</td>
+      <td>9675.32</td>
+      <td>22,899,115,082</td>
+      <td>20190815</td>
+      <td>184,357,666,577</td>
+      <td>10051.70</td>
+      <td>3</td>
+      <td>2.585</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-16</th>
+      <td>10319.42</td>
+      <td>10374.34</td>
+      <td>10524.35</td>
+      <td>9855.48</td>
+      <td>20,228,207,096</td>
+      <td>20190816</td>
+      <td>185,500,055,339</td>
+      <td>10311.55</td>
+      <td>4</td>
+      <td>0.609</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-17</th>
+      <td>10358.72</td>
+      <td>10231.74</td>
+      <td>10452.62</td>
+      <td>10086.70</td>
+      <td>13,778,035,685</td>
+      <td>20190817</td>
+      <td>182,966,857,173</td>
+      <td>10374.34</td>
+      <td>5</td>
+      <td>-1.375</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-18</th>
+      <td>10233.01</td>
+      <td>10345.81</td>
+      <td>10487.07</td>
+      <td>10119.09</td>
+      <td>12,999,813,869</td>
+      <td>20190818</td>
+      <td>185,022,920,955</td>
+      <td>10231.74</td>
+      <td>6</td>
+      <td>1.115</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-19</th>
+      <td>10350.28</td>
+      <td>10916.05</td>
+      <td>10916.05</td>
+      <td>10313.20</td>
+      <td>16,038,264,603</td>
+      <td>20190819</td>
+      <td>195,243,306,008</td>
+      <td>10345.81</td>
+      <td>0</td>
+      <td>5.512</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-20</th>
+      <td>10916.35</td>
+      <td>10763.23</td>
+      <td>10947.04</td>
+      <td>10618.96</td>
+      <td>15,053,082,175</td>
+      <td>20190820</td>
+      <td>192,530,283,565</td>
+      <td>10916.05</td>
+      <td>1</td>
+      <td>-1.400</td>
+      <td>11966.41</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-21</th>
+      <td>10764.57</td>
+      <td>10138.05</td>
+      <td>10798.73</td>
+      <td>9962.72</td>
+      <td>19,473,084,768</td>
+      <td>20190821</td>
+      <td>181,364,502,142</td>
+      <td>10763.23</td>
+      <td>2</td>
+      <td>-5.808</td>
+      <td>11862.94</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-22</th>
+      <td>10142.52</td>
+      <td>10131.06</td>
+      <td>10233.00</td>
+      <td>9831.46</td>
+      <td>17,097,508,856</td>
+      <td>20190822</td>
+      <td>181,257,125,783</td>
+      <td>10138.05</td>
+      <td>3</td>
+      <td>-0.069</td>
+      <td>11523.58</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-23</th>
+      <td>10136.31</td>
+      <td>10407.97</td>
+      <td>10442.44</td>
+      <td>10078.19</td>
+      <td>15,627,023,886</td>
+      <td>20190823</td>
+      <td>186,231,409,722</td>
+      <td>10131.06</td>
+      <td>4</td>
+      <td>2.733</td>
+      <td>11523.58</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-24</th>
+      <td>10407.64</td>
+      <td>10159.96</td>
+      <td>10418.02</td>
+      <td>9982.30</td>
+      <td>15,451,030,650</td>
+      <td>20190824</td>
+      <td>181,813,631,752</td>
+      <td>10407.97</td>
+      <td>5</td>
+      <td>-2.383</td>
+      <td>11382.62</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-25</th>
+      <td>10160.74</td>
+      <td>10138.52</td>
+      <td>10304.62</td>
+      <td>10008.79</td>
+      <td>14,153,856,610</td>
+      <td>20190825</td>
+      <td>181,450,186,164</td>
+      <td>10159.96</td>
+      <td>6</td>
+      <td>-0.211</td>
+      <td>10916.05</td>
+      <td>10051.70</td>
+    </tr>
+    <tr>
+      <th>2019-08-26</th>
+      <td>10126.30</td>
+      <td>10370.82</td>
+      <td>10512.33</td>
+      <td>10126.30</td>
+      <td>18,438,654,080</td>
+      <td>20190826</td>
+      <td>185,625,235,889</td>
+      <td>10138.52</td>
+      <td>0</td>
+      <td>2.291</td>
+      <td>10916.05</td>
+      <td>10051.70</td>
+    </tr>
+  </tbody>
+</table>
+<p>365 rows × 12 columns</p>
+</div>
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">buy_sig = buysignal(bitcoin)</span><br><span class="line">sell_sig = sellsignal(bitcoin)</span><br><span class="line">myaccount = QsAccount()</span><br><span class="line">QsPickSignal.signal_day_back_test(myaccount,buy_sig,sell_sig)</span><br></pre></td></tr></table></figure>
+
+<pre><code>2019-09-04 15:13:06,489 - INFO - start back test...
+2019-09-04 15:13:06,498 - INFO - 2018-08-27 buy bitcoin 145.17828817121338
+2019-09-04 15:13:06,500 - INFO - The asset is 999500.2498750625
+2019-09-04 15:13:06,555 - INFO - 2018-09-06 stop loss bitcoin 145.17828817121338
+2019-09-04 15:13:06,556 - INFO - The asset is 947419.776916952
+2019-09-04 15:13:06,656 - INFO - 2018-09-21 buy bitcoin 140.60183130759242
+2019-09-04 15:13:06,658 - INFO - The asset is 946946.3037650695
+2019-09-04 15:13:06,756 - INFO - 2018-10-11 sell bitcoin 140.60183130759242
+2019-09-04 15:13:06,758 - INFO - The asset is 879198.9816992619
+2019-09-04 15:13:06,870 - INFO - 2018-11-07 buy bitcoin 134.56979511898868
+2019-09-04 15:13:06,870 - INFO - The asset is 878759.6018983128
+2019-09-04 15:13:06,938 - INFO - 2018-11-14 sell bitcoin 134.56979511898868
+2019-09-04 15:13:06,940 - INFO - The asset is 771822.4795291382
+2019-09-04 15:13:07,068 - INFO - 2018-12-18 buy bitcoin 208.7186791200803
+2019-09-04 15:13:07,068 - INFO - The asset is 771436.7611485639
+2019-09-04 15:13:07,185 - INFO - 2019-01-12 sell bitcoin 208.7186791200803
+2019-09-04 15:13:07,185 - INFO - The asset is 763799.6090124189
+2019-09-04 15:13:07,285 - INFO - 2019-02-08 buy bitcoin 208.19844661048324
+2019-09-04 15:13:07,285 - INFO - The asset is 763417.9000623877
+2019-09-04 15:13:07,769 - INFO - 2019-06-09 sell bitcoin 208.19844661048324
+2019-09-04 15:13:07,770 - INFO - The asset is 1599845.9902604157
+2019-09-04 15:13:07,816 - INFO - 2019-06-15 buy bitcoin 180.92076455491875
+2019-09-04 15:13:07,818 - INFO - The asset is 1599046.4670269024
+2019-09-04 15:13:07,940 - INFO - 2019-07-14 sell bitcoin 180.92076455491875
+2019-09-04 15:13:07,941 - INFO - The asset is 1854606.4494128593
+2019-09-04 15:13:08,020 - INFO - 2019-08-03 buy bitcoin 171.29235432856441
+2019-09-04 15:13:08,020 - INFO - The asset is 1853679.6096080553
+2019-09-04 15:13:08,087 - INFO - 2019-08-14 stop loss bitcoin 171.29235432856441
+2019-09-04 15:13:08,088 - INFO - The asset is 1720918.468325429</code></pre><p>收益略好于大盘，这主要是因为19年整个大涨期间持有了btc一直没有抛。由于现在btc横盘已经有3个月了，不如再次缩小时间段看看收益。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bitcoin.crypto_df = bitcoin.crypto_df[<span class="number">-90</span>:]</span><br><span class="line">buy_sig = buysignal(bitcoin)</span><br><span class="line">sell_sig = sellsignal(bitcoin)</span><br><span class="line">myaccount = QsAccount()</span><br><span class="line">QsPickSignal.signal_day_back_test(myaccount,buy_sig,sell_sig)</span><br></pre></td></tr></table></figure>
+
+<pre><code>2019-09-04 15:13:08,185 - INFO - start back test...
+2019-09-04 15:13:08,247 - INFO - 2019-06-15 buy bitcoin 113.08636309765622
+2019-09-04 15:13:08,249 - INFO - The asset is 999500.2498750625
+2019-09-04 15:13:08,366 - INFO - 2019-07-14 sell bitcoin 113.08636309765622
+2019-09-04 15:13:08,366 - INFO - The asset is 1159240.614848792
+2019-09-04 15:13:08,469 - INFO - 2019-08-03 buy bitcoin 107.06802740473924
+2019-09-04 15:13:08,469 - INFO - The asset is 1158661.2842066889
+2019-09-04 15:13:08,568 - INFO - 2019-08-14 stop loss bitcoin 107.06802740473924
+2019-09-04 15:13:08,568 - INFO - The asset is 1075677.5832186858</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">QsDrawUtil.plot_dfs(&#123;<span class="string">'bitcoin'</span>:bitcoin.crypto_df.close,<span class="string">'asset'</span>:myaccount.asset.asset&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/qsq_paper2/output_45_0.png" alt></p>
+<p>看到这里我们发现这个策略的这两拨操作输给了大盘，虽然获得了收益，但是输给大盘是我们的耻辱。而且做这种高危的加密货币，在大盘涨的时候，我们应该要远远甩下它才是。因此我们得出结论，应该买一个币然后过5年再看它的价格。好吧，这是玩笑。</p>
+<h2>结论</h2>
+在这篇小文章中，我们完成了qsq中的回测框架，进行了一个简单策略的回测。最最重要的是，我们自己实现了框架，对源码比较熟悉，可以很方便地为其添加功能，实现新的策略。总体分析，这篇研究地优缺点如下。<br>
+优点：
+<ol>
+<li>实现了一个简单、易扩展的加密货币回测框架，尝试了简单的择时策略</li>
+</ol>
+缺点：
+<ol>
+<li>从框架上讲，目前只支持简单择时策略，还需添加更多的策略</li>
+<li>从策略上讲，我们这个策略收益不理想</li>
+</ol>
+
+<h2>后续研究</h2>
+后续研究我个人暂时有两个方向。
+<ol>
+<li>完成更多的策略支持和回测</li>
+<li>深入分析每个策略，改变参数，分析比较</li>
+</ol>
+
+<h2>参考资料</h2>
+1. abupy https://github.com/bbfamily/abu <br>
+2. 小白量化 https://blog.csdn.net/hepu8/article/details/93378626
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantitative-trading/" rel="tag"># Quantitative trading</a>
+          
+            <a href="/tags/qsq/" rel="tag"># qsq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/28/qsq-paper1-data-fetch-and-analysis/" rel="next" title="qsq加密货币量化系统：数据获取和分析">
+                <i class="fa fa-chevron-left"></i> qsq加密货币量化系统：数据获取和分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/qiushui.jpg" alt="秋水">
+            
+              <p class="site-author-name" itemprop="name">秋水</p>
+              <p class="site-description motion-element" itemprop="description">闭口治世之贤良，张口乱世之枭雄</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">项目地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">abu和小白量化回测框架代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">abu</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">小白量化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">qsq回测框架设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">择时策略回测</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">获取数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">定义信号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">开始回测</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">后续研究</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋水</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://qiushui777.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://qiushui777.github.io/2019/09/04/qsq-paper2-backtest/';
+          this.page.identifier = '2019/09/04/qsq-paper2-backtest/';
+          this.page.title = 'qsq加密货币量化系统：实现简单择时策略的回测';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://qiushui777.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
