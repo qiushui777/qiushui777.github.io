@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Quantitative trading,qsq,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  隐马尔科夫模型 模型实例 刘">
+<meta name="keywords" content="Quantitative trading,qsq">
+<meta property="og:type" content="article">
+<meta property="og:title" content="qsq加密货币量化系统： 隐马尔可夫模型">
+<meta property="og:url" content="https://qiushui777.github.io/2019/10/06/qsq-paper4-basic-hmmlean/index.html">
+<meta property="og:site_name" content="秋水">
+<meta property="og:description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  隐马尔科夫模型 模型实例 刘">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper4/output_33_0.png">
+<meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper4/output_35_0.png">
+<meta property="og:updated_time" content="2019-10-06T13:34:18.468Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="qsq加密货币量化系统： 隐马尔可夫模型">
+<meta name="twitter:description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  隐马尔科夫模型 模型实例 刘">
+<meta name="twitter:image" content="https://qiushui777.github.io/images/qsq_paper4/output_33_0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qiushui777.github.io/2019/10/06/qsq-paper4-basic-hmmlean/">
+
+
+
+
+
+  <title>qsq加密货币量化系统： 隐马尔可夫模型 | 秋水</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秋水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2019/10/06/qsq-paper4-basic-hmmlean/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="秋水">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/qiushui.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">qsq加密货币量化系统： 隐马尔可夫模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T21:25:56+08:00">
+                2019-10-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/06/qsq-paper4-basic-hmmlean/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/06/qsq-paper4-basic-hmmlean/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2>前言</h2>
+
+<p>在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。</p>
+<ol>
+<li>很多代码没有开源亦或者依赖特定的平台</li>
+<li>部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少</li>
+</ol>
+所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。
+
+<h2>隐马尔科夫模型</h2>
+<h3>模型实例</h3>
+刘建平Pinard使用了《统计学习方法》中的一个例子来进行解释，我觉得简单易懂。hmm（隐马尔科夫模型）中较为重要的几个部分包括初始状态分布、状态转移概率分布矩阵、观测状态概率矩阵。假设我们有3个盒子，每个盒子里都有红色和白色两种球，这三个盒子里球的数量分别是：
+
+<table>
+<thead>
+<tr>
+<th align="center">盒子</th>
+<th align="center">1</th>
+<th align="center">2</th>
+<th align="center">3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">红球数</td>
+<td align="center">5</td>
+<td align="center">4</td>
+<td align="center">7</td>
+</tr>
+<tr>
+<td align="center">白球数</td>
+<td align="center">5</td>
+<td align="center">6</td>
+<td align="center">3</td>
+</tr>
+</tbody></table>
+<p>按照下面的方法从盒子里抽球，开始的时候，从第一个盒子抽球的概率是0.2，从第二个盒子抽球的概率是0.4，从第三个盒子抽球的概率是0.4。以这个概率抽一次球后，将球放回。然后从当前盒子转移到下一个盒子进行抽球。规则是：如果当前抽球的盒子是第一个盒子，则以0.5的概率仍然留在第一个盒子继续抽球，以0.2的概率去第二个盒子抽球，以0.3的概率去第三个盒子抽球。如果当前抽球的盒子是第二个盒子，则以0.5的概率仍然留在第二个盒子继续抽球，以0.3的概率去第一个盒子抽球，以0.2的概率去第三个盒子抽球。如果当前抽球的盒子是第三个盒子，则以0.5的概率仍然留在第三个盒子继续抽球，以0.2的概率去第一个盒子抽球，以0.3的概率去第二个盒子抽球。如此下去，直到重复三次，得到一个球的颜色的观测序列:</p>
+<p>O = {红，白，红}</p>
+<p>这个过程中，观察者只能看到球的颜色序列，却不能看到球是从哪个盒子里取出的。（这里我补充一句，在我们量化的过程中，所想要知道或者猜测的就是当前这个盒子是哪个，也就是当前市场的状态是什么，从而做出相应的策略。）</p>
+<p>这个模型中，我们的观察集合是</p>
+<p>V = {红，白}， M=2</p>
+<p>我们的状态集合是</p>
+<p>Q = {盒子1，盒子2，盒子3}，N=3</p>
+<p>初始状态分布为</p>
+<p>Π = (0.2,0.4,0.4)<sup>T</sup></p>
+<p>状态转移概率分布矩阵为</p>
+<p>$$<br> \begin{matrix}<br>   0.5 &amp; 0.2 &amp; 0.3 \<br>   0.3 &amp; 0.5 &amp; 0.2 \<br>   0.2 &amp; 0.3 &amp; 0.5<br>  \end{matrix}<br>$$</p>
+<p>观测状态概率矩阵为</p>
+<p>$$<br> \begin{matrix}<br>   0.5 &amp; 0.5\<br>   0.4 &amp; 0.6\<br>   0.7 &amp; 0.3<br>  \end{matrix}<br>$$</p>
+<p>总结下这个模型我们需要理解的关键点就是，我们有初始状态分布、状态转移概率分布矩阵、观测状态概率矩阵，在模型实践的过程中，也就是取球的过程中，有一个观测序列O（取出的球的颜色），以及一个隐藏的状态序列（球所在的盒子）。如果我们能够知道现在球所在的盒子，那我们是不是就可以知道下一个是哪个盒子的概率以及取出球的颜色的概率？对应到我们金融市场的情况，大家也就一目了然了吧。</p>
+<h3>hmm模型的三个基本问题</h3>
+1.评估观察序列概率。给定模型和观测序列，计算该模型下观测序列出现的概率。
+2.模型参数学习问题。给定观测序列，估计模型参数，使得该模型下观测序列的条件概率最大。
+3.预测问题，给定模型和观测序列，求给定观测序列下最可能出现的状态序列。
+我们想利用量化模型来预测股市状态就要解决问题1和3。
+
+<h3>简短总结</h3>
+知道我们要解决的问题后，就是如何解决了。hmm模型的解法具体不细讲，因为我自己也不大清楚。有兴趣的朋友可以看下刘建平Pinard博客上的文章介绍，我后面的参考文献中有列出。这里我们需要知道的其实就是hmm怎么用在市场预测中。简单说，应用hmm的目的如下如果只是观测市场，我们只能知道当天的价格、成交量等信息，但是并不知道当前市场处于什么样的状态（牛市、熊市、震荡、反弹等等），在这种情况下我们有两个状态集合，一个可以观察到的状态集合（市场价格成交量状态等）和一个隐藏的状态集合（市场状况）。我们希望能找到一个算法可以根据股市价格成交量状况和马尔科夫假设来预测股市的状况。明白了这一点后，我们就可以化身“调包侠”，愉快地写代码了。
+
+<h2>策略实现</h2>
+<h3>增加hmm类</h3>
+为了在qsq中加入一个隐马尔可夫策略，我在TacticsQs中加入了QsHmm类。具体看下这个类，主要是实现了以下几个接口。
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">QsHmm</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    隐马尔可夫策略</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self,crypto_df)</span>:</span></span><br><span class="line">        self.components = <span class="number">6</span></span><br><span class="line">        self.model = <span class="literal">None</span></span><br><span class="line">        self.iter = <span class="number">1000</span></span><br><span class="line">        self.covariance_type = <span class="string">"diag"</span> <span class="comment">#convariance_type 包括有"full","spherical","diag","tied"</span></span><br><span class="line">        self.hidden_states = <span class="literal">None</span></span><br><span class="line">        self.cryptodata = crypto_df <span class="comment">#行情数据</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fit</span><span class="params">(self, fit_data)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        训练隐马尔可夫模型的接口</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">plot_hidden_states</span><span class="params">(self,cut)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        将隐藏状态和市场状态绘制在一起以显示每个隐藏状态的预测效果</span></span><br><span class="line"><span class="string">        此处的cut指的是训练时截取数据的偏移，如5day_logreturn，cut为5</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">plot_states_effect</span><span class="params">(self,cut)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        在每个隐藏状态为True的第二天买入，观察资产增值情况</span></span><br><span class="line"><span class="string">        此处的cut指的是训练时截取数据的偏移，如5day_logreturn，cut为5</span></span><br><span class="line"><span class="string">        """</span></span><br></pre></td></tr></table></figure>
+
+<p>具体代码实现，大家可以自行阅读代码。</p>
+<h3>训练模型</h3>
+<h4>获取数据</h4>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> division</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line">warnings.filterwarnings(<span class="string">'ignore'</span>)</span><br><span class="line">warnings.simplefilter(<span class="string">'ignore'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="comment"># 使用insert 0即只使用github，避免交叉使用了pip安装的abupy，导致的版本不一致问题</span></span><br><span class="line">sys.path.insert(<span class="number">0</span>, os.path.abspath(<span class="string">'../'</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> locale <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> qsq <span class="keyword">import</span> QsCrypto, QsHmm, QsSignal, QsPickSignal, QsAccount</span><br><span class="line"></span><br><span class="line">setlocale(LC_NUMERIC, <span class="string">'English_US'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>&apos;English_United States.1252&apos;</code></pre><p>在实际编写策略的过程中我发现，不同的时间维度上，得出的隐藏状态可能差别很大，因为加密货币市场从最初的低价经历了17年的攀升，所以我这里没有分析17年前的数据。实际操练的过程中，大家可以试试看在全部数据上训练的结果，这种情况下会造成隐藏状态的效果很差。在近几年几乎没有任何作用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bitcoin = QsCrypto(<span class="string">'bitcoin'</span>)</span><br><span class="line">bitcoin.crypto_df = bitcoin.crypto_df[<span class="number">-670</span>:]</span><br><span class="line">bitcoin.crypto_df</span><br></pre></td></tr></table></figure>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}</code></pre><p></style><p></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>open</th>
+      <th>close</th>
+      <th>high</th>
+      <th>low</th>
+      <th>volume</th>
+      <th>date</th>
+      <th>MarketCap</th>
+      <th>pre_close</th>
+      <th>date_week</th>
+      <th>p_change</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2017-12-05</th>
+      <td>11685.70</td>
+      <td>11916.70</td>
+      <td>12032.00</td>
+      <td>11604.60</td>
+      <td>6,895,260,160</td>
+      <td>20171205</td>
+      <td>199,278,350,420</td>
+      <td>11657.20</td>
+      <td>1</td>
+      <td>2.226</td>
+    </tr>
+    <tr>
+      <th>2017-12-06</th>
+      <td>11923.40</td>
+      <td>14291.50</td>
+      <td>14369.10</td>
+      <td>11923.40</td>
+      <td>12,656,300,032</td>
+      <td>20171206</td>
+      <td>239,024,437,136</td>
+      <td>11916.70</td>
+      <td>2</td>
+      <td>19.928</td>
+    </tr>
+    <tr>
+      <th>2017-12-07</th>
+      <td>14266.10</td>
+      <td>17899.70</td>
+      <td>17899.70</td>
+      <td>14057.30</td>
+      <td>17,950,699,520</td>
+      <td>20171207</td>
+      <td>299,405,364,249</td>
+      <td>14291.50</td>
+      <td>3</td>
+      <td>25.247</td>
+    </tr>
+    <tr>
+      <th>2017-12-08</th>
+      <td>17802.90</td>
+      <td>16569.40</td>
+      <td>18353.40</td>
+      <td>14336.90</td>
+      <td>21,135,998,976</td>
+      <td>20171208</td>
+      <td>277,185,764,485</td>
+      <td>17899.70</td>
+      <td>4</td>
+      <td>-7.432</td>
+    </tr>
+    <tr>
+      <th>2017-12-09</th>
+      <td>16523.30</td>
+      <td>15178.20</td>
+      <td>16783.00</td>
+      <td>13674.90</td>
+      <td>13,911,300,096</td>
+      <td>20171209</td>
+      <td>253,946,084,745</td>
+      <td>16569.40</td>
+      <td>5</td>
+      <td>-8.396</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2019-09-06</th>
+      <td>10578.20</td>
+      <td>10353.30</td>
+      <td>10898.76</td>
+      <td>10292.30</td>
+      <td>19,536,574,783</td>
+      <td>20190906</td>
+      <td>185,530,405,363</td>
+      <td>10575.53</td>
+      <td>4</td>
+      <td>-2.101</td>
+    </tr>
+    <tr>
+      <th>2019-09-07</th>
+      <td>10353.93</td>
+      <td>10517.25</td>
+      <td>10558.67</td>
+      <td>10348.92</td>
+      <td>15,307,366,476</td>
+      <td>20190907</td>
+      <td>188,488,525,926</td>
+      <td>10353.30</td>
+      <td>5</td>
+      <td>1.584</td>
+    </tr>
+    <tr>
+      <th>2019-09-08</th>
+      <td>10518.11</td>
+      <td>10441.28</td>
+      <td>10595.64</td>
+      <td>10409.09</td>
+      <td>13,670,567,493</td>
+      <td>20190908</td>
+      <td>187,150,078,007</td>
+      <td>10517.25</td>
+      <td>6</td>
+      <td>-0.722</td>
+    </tr>
+    <tr>
+      <th>2019-09-09</th>
+      <td>10443.23</td>
+      <td>10334.97</td>
+      <td>10450.31</td>
+      <td>10144.93</td>
+      <td>17,595,943,368</td>
+      <td>20190909</td>
+      <td>185,263,578,990</td>
+      <td>10441.28</td>
+      <td>0</td>
+      <td>-1.018</td>
+    </tr>
+    <tr>
+      <th>2019-09-10</th>
+      <td>10336.41</td>
+      <td>10115.98</td>
+      <td>10394.35</td>
+      <td>10020.57</td>
+      <td>14,906,809,639</td>
+      <td>20190910</td>
+      <td>181,360,731,383</td>
+      <td>10334.97</td>
+      <td>1</td>
+      <td>-2.119</td>
+    </tr>
+    <tr>
+      <th>2019-09-11</th>
+      <td>10123.03</td>
+      <td>10178.37</td>
+      <td>10215.95</td>
+      <td>9980.78</td>
+      <td>15,428,063,426</td>
+      <td>20190911</td>
+      <td>182,502,788,242</td>
+      <td>10115.98</td>
+      <td>2</td>
+      <td>0.617</td>
+    </tr>
+    <tr>
+      <th>2019-09-12</th>
+      <td>10176.82</td>
+      <td>10410.13</td>
+      <td>10442.25</td>
+      <td>10099.24</td>
+      <td>15,323,563,925</td>
+      <td>20190912</td>
+      <td>186,678,943,059</td>
+      <td>10178.37</td>
+      <td>3</td>
+      <td>2.277</td>
+    </tr>
+    <tr>
+      <th>2019-09-13</th>
+      <td>10415.36</td>
+      <td>10360.55</td>
+      <td>10441.49</td>
+      <td>10226.60</td>
+      <td>14,109,864,675</td>
+      <td>20190913</td>
+      <td>185,809,163,035</td>
+      <td>10410.13</td>
+      <td>4</td>
+      <td>-0.476</td>
+    </tr>
+    <tr>
+      <th>2019-09-14</th>
+      <td>10345.40</td>
+      <td>10358.05</td>
+      <td>10422.13</td>
+      <td>10291.69</td>
+      <td>13,468,713,124</td>
+      <td>20190914</td>
+      <td>185,784,300,332</td>
+      <td>10360.55</td>
+      <td>5</td>
+      <td>-0.024</td>
+    </tr>
+    <tr>
+      <th>2019-09-15</th>
+      <td>10356.47</td>
+      <td>10347.71</td>
+      <td>10387.03</td>
+      <td>10313.09</td>
+      <td>12,043,433,567</td>
+      <td>20190915</td>
+      <td>185,618,174,384</td>
+      <td>10358.05</td>
+      <td>6</td>
+      <td>-0.100</td>
+    </tr>
+    <tr>
+      <th>2019-10-01</th>
+      <td>8299.72</td>
+      <td>8343.28</td>
+      <td>8497.69</td>
+      <td>8232.68</td>
+      <td>15,305,343,413</td>
+      <td>20191001</td>
+      <td>149,913,972,768</td>
+      <td>8293.87</td>
+      <td>1</td>
+      <td>0.596</td>
+    </tr>
+    <tr>
+      <th>2019-10-02</th>
+      <td>8344.21</td>
+      <td>8393.04</td>
+      <td>8393.04</td>
+      <td>8227.70</td>
+      <td>13,125,712,443</td>
+      <td>20191002</td>
+      <td>150,823,797,662</td>
+      <td>8343.28</td>
+      <td>2</td>
+      <td>0.596</td>
+    </tr>
+    <tr>
+      <th>2019-10-03</th>
+      <td>8390.77</td>
+      <td>8259.99</td>
+      <td>8414.23</td>
+      <td>8146.44</td>
+      <td>13,668,823,409</td>
+      <td>20191003</td>
+      <td>148,448,162,840</td>
+      <td>8393.04</td>
+      <td>3</td>
+      <td>-1.585</td>
+    </tr>
+    <tr>
+      <th>2019-10-04</th>
+      <td>8259.49</td>
+      <td>8205.94</td>
+      <td>8260.06</td>
+      <td>8151.24</td>
+      <td>13,139,456,229</td>
+      <td>20191004</td>
+      <td>147,491,804,056</td>
+      <td>8259.99</td>
+      <td>4</td>
+      <td>-0.654</td>
+    </tr>
+    <tr>
+      <th>2019-10-05</th>
+      <td>8210.15</td>
+      <td>8151.50</td>
+      <td>8215.53</td>
+      <td>8071.12</td>
+      <td>12,200,497,197</td>
+      <td>20191005</td>
+      <td>146,529,229,668</td>
+      <td>8205.94</td>
+      <td>5</td>
+      <td>-0.663</td>
+    </tr>
+  </tbody>
+</table>
+<p>670 rows × 10 columns</p>
+</div>
+
+
+
+<h4>挑选特征</h4>
+为了训练我们的隐马尔可夫模型，我们必须提供特征向量。这里我选取的是一日对数收益差、五日对数收益差、当日对数高低价差、当日的市值。这部分的选择我主要还是参考了优矿上的那篇文章，在我后面的研究中，我会对这些参数进行分析以提高我们的模型。
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">bitcoin.add_nday_logreturn(<span class="number">1</span>)</span><br><span class="line">bitcoin.add_nday_logreturn(<span class="number">5</span>)</span><br><span class="line">bitcoin.add_high_low_log()</span><br><span class="line"></span><br><span class="line">high_low_log = bitcoin.crypto_df[<span class="string">'high_low_log'</span>].values[<span class="number">5</span>:]</span><br><span class="line">one_day_logreturn = bitcoin.crypto_df[<span class="string">'1day_logreturn'</span>].values[<span class="number">5</span>:]</span><br><span class="line">five_day_logreturn = bitcoin.crypto_df[<span class="string">'5day_logreturn'</span>].values[<span class="number">5</span>:]</span><br><span class="line">cap = bitcoin.crypto_df[<span class="string">'MarketCap'</span>].values[<span class="number">5</span>:]</span><br><span class="line">cap = [atof(num) <span class="keyword">for</span> num <span class="keyword">in</span> cap] <span class="comment">#这里获取的市值是例如1,233,233这样的str,此步骤可以将其化为float</span></span><br><span class="line">train_data = np.column_stack([high_low_log, one_day_logreturn, five_day_logreturn, cap])</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_data</span><br></pre></td></tr></table></figure>
+
+<pre><code>array([[ 1.80977401e-01,  1.80982690e-02,  2.60017679e-01,
+         2.58615394e+11],
+       [ 1.28315702e-01,  9.15303125e-02,  1.69823814e-01,
+         2.83439889e+11],
+       [ 7.04850755e-02,  2.78661029e-02, -2.74290807e-02,
+         2.91483936e+11],
+       ...,
+       [ 3.23432982e-02, -1.59794141e-02,  1.70484431e-03,
+         1.48448163e+11],
+       [ 1.32617885e-02, -6.56509461e-03,  1.24770704e-02,
+         1.47491804e+11],
+       [ 1.77340073e-02, -6.65632287e-03, -1.73147283e-02,
+         1.46529230e+11]])</code></pre><h4>开始训练</h4>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hmm = QsHmm(bitcoin.crypto_df)</span><br><span class="line">hmm.fit(train_data)</span><br></pre></td></tr></table></figure>
+
+<p>先调用第一个接口plot_hidden_states。这个接口的目的是为了展示我们的6个隐藏状态，同时汇出比特币的价格曲线，因为每天的隐藏状态只有一个，所以我们可以比较直观地看到价格趋势和隐藏状态地关系。这里函数需要传入地那个cut实际上是我们先前获取五日对数收益差时截取掉了最初地5天，所以我们这里输入了5。实际上，如果选择10天对数收益差，那么cut就是10。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hmm.plot_hidden_states(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/qsq_paper4/output_33_0.png" alt></p>
+<p>接下来，我们调用plot_states_effect()接口。这个接口就是我们在每个隐藏状态出现后买入，并观察收益率。这个接口可以帮助我们快速挑选出显示当前处于上升亦或是下降趋势地隐藏状态。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hmm.plot_states_effect(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/qsq_paper4/output_35_0.png" alt></p>
+<p>这里我们其实可以悲催地看到，这几个隐藏状态似乎都不怎么样，没有明确地表明上升和下降地趋势。单从实验角度，这里我选择状态1出现做多，状态0和状态2出现做空进行回测。</p>
+<h3>进行回测</h3>
+要进行回测，利用到的自然是先前的择时策略中使用的QsSignal买卖信号和signal_backtest_percent回测函数了。为了方便地利用这个函数，我们将先前获得的隐藏状态写入Dataframe中。
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bitcoin.crypto_df[<span class="string">'hidden_states'</span>] = <span class="literal">None</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5</span>,len(bitcoin.crypto_df)<span class="number">-1</span>):</span><br><span class="line">        bitcoin.crypto_df.ix[i,<span class="string">'hidden_states'</span>] = hmm.hidden_states[i<span class="number">-5</span>]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bitcoin.crypto_df</span><br></pre></td></tr></table></figure>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}</code></pre><p></style><p></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>open</th>
+      <th>close</th>
+      <th>high</th>
+      <th>low</th>
+      <th>volume</th>
+      <th>date</th>
+      <th>MarketCap</th>
+      <th>pre_close</th>
+      <th>date_week</th>
+      <th>p_change</th>
+      <th>1day_logreturn</th>
+      <th>5day_logreturn</th>
+      <th>high_low_log</th>
+      <th>hidden_states</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2017-12-05</th>
+      <td>11685.70</td>
+      <td>11916.70</td>
+      <td>12032.00</td>
+      <td>11604.60</td>
+      <td>6,895,260,160</td>
+      <td>20171205</td>
+      <td>199,278,350,420</td>
+      <td>11657.20</td>
+      <td>1</td>
+      <td>2.226</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.036168</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2019-10-02</th>
+      <td>8344.21</td>
+      <td>8393.04</td>
+      <td>8393.04</td>
+      <td>8227.70</td>
+      <td>13,125,712,443</td>
+      <td>20191002</td>
+      <td>150,823,797,662</td>
+      <td>8343.28</td>
+      <td>2</td>
+      <td>0.596</td>
+      <td>0.005946</td>
+      <td>0.016965</td>
+      <td>0.019896</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2019-10-03</th>
+      <td>8390.77</td>
+      <td>8259.99</td>
+      <td>8414.23</td>
+      <td>8146.44</td>
+      <td>13,668,823,409</td>
+      <td>20191003</td>
+      <td>148,448,162,840</td>
+      <td>8393.04</td>
+      <td>3</td>
+      <td>-1.585</td>
+      <td>-0.015979</td>
+      <td>0.001705</td>
+      <td>0.032343</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2019-10-04</th>
+      <td>8259.49</td>
+      <td>8205.94</td>
+      <td>8260.06</td>
+      <td>8151.24</td>
+      <td>13,139,456,229</td>
+      <td>20191004</td>
+      <td>147,491,804,056</td>
+      <td>8259.99</td>
+      <td>4</td>
+      <td>-0.654</td>
+      <td>-0.006565</td>
+      <td>0.012477</td>
+      <td>0.013262</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2019-10-05</th>
+      <td>8210.15</td>
+      <td>8151.50</td>
+      <td>8215.53</td>
+      <td>8071.12</td>
+      <td>12,200,497,197</td>
+      <td>20191005</td>
+      <td>146,529,229,668</td>
+      <td>8205.94</td>
+      <td>5</td>
+      <td>-0.663</td>
+      <td>-0.006656</td>
+      <td>-0.017315</td>
+      <td>0.017734</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+<p>670 rows × 14 columns</p>
+</div>
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">hmmsignal</span><span class="params">(QsSignal)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">produce_signal</span><span class="params">(self,param)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.crypto.crypto_df.loc[param][<span class="string">'hidden_states'</span>] == <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">1</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line">        <span class="keyword">elif</span> self.crypto.crypto_df.loc[param][<span class="string">'hidden_states'</span>] == <span class="number">0</span> <span class="keyword">or</span> self.crypto.crypto_df.loc[param][<span class="string">'hidden_states'</span>] == <span class="number">2</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">2</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'mode'</span>:<span class="number">0</span>, <span class="string">'symbol'</span>:self.crypto.symbol,<span class="string">'percent'</span>:<span class="number">1</span>&#125;</span><br><span class="line">mysignal = hmmsignal(bitcoin)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">myaccount = QsAccount()</span><br><span class="line">QsPickSignal.signal_backtest_percent(myaccount,mysignal,mysignal)</span><br></pre></td></tr></table></figure>
+
+<pre><code>2019-10-06 21:16:39,846 - INFO - start back test...
+2019-10-06 21:16:40,746 - INFO - 2018-12-11 buy bitcoin 291.85982843933505 price: 3424.59
+2019-10-06 21:16:40,747 - INFO - The asset is 999500.2498750625
+2019-10-06 21:16:40,759 - INFO - 2018-12-13 sell bitcoin 291.85982843933505 price: 3313.68
+2019-10-06 21:16:40,759 - INFO - The asset is 966646.5112647044
+2019-10-06 21:16:40,769 - INFO - 2018-12-15 buy bitcoin 298.4970864537159 price: 3236.76
+2019-10-06 21:16:40,771 - INFO - The asset is 966163.4295499295
+2019-10-06 21:16:40,784 - INFO - 2018-12-17 sell bitcoin 298.4970864537159 price: 3545.86
+2019-10-06 21:16:40,785 - INFO - The asset is 1057899.6645332864
+2019-10-06 21:16:40,808 - INFO - 2018-12-23 buy bitcoin 264.4101693541264 price: 3998.98
+2019-10-06 21:16:40,809 - INFO - The asset is 1057370.9790437645
+2019-10-06 21:16:40,818 - INFO - 2018-12-24 sell bitcoin 264.4101693541264 price: 4078.6
+2019-10-06 21:16:40,819 - INFO - The asset is 1077884.1050693763
+...
+2019-10-06 21:16:41,181 - INFO - The asset is 1229539.6924601505
+2019-10-06 21:16:41,199 - INFO - 2019-04-07 buy bitcoin 236.38177880806094 price: 5198.9
+2019-10-06 21:16:41,200 - INFO - The asset is 1228925.229845228
+2019-10-06 21:16:41,216 - INFO - 2019-04-11 sell bitcoin 236.38177880806094 price: 5064.49
+2019-10-06 21:16:41,217 - INFO - The asset is 1196554.5783781586
+2019-10-06 21:16:41,224 - INFO - 2019-04-12 buy bitcoin 234.98324015099982 price: 5089.54
+2019-10-06 21:16:41,225 - INFO - The asset is 1195956.6000781197
+2019-10-06 21:16:41,257 - INFO - 2019-04-23 sell bitcoin 234.98324015099982 price: 5572.36
+2019-10-06 21:16:41,258 - INFO - The asset is 1308756.5024837814
+2019-10-06 21:16:41,270 - INFO - 2019-04-26 buy bitcoin 247.77717924709526 price: 5279.35
+2019-10-06 21:16:41,271 - INFO - The asset is 1308102.4512581525
+2019-10-06 21:16:41,294 - INFO - 2019-05-03 sell bitcoin 247.77717924709526 price: 5768.29
+2019-10-06 21:16:41,295 - INFO - The asset is 1428535.9999665874</code></pre><p>可以看到，这两年多的时间内我们获得了1.5倍左右的收益，然而，我们知道，隐马尔可夫模型是一个机器学习模型，总是基于过去的数据进行回测的，所以在过去的数据上跑出1.5倍的收益其实没什么好惊奇的。如果不跑出收益才是奇怪。</p>
+<h2>总结和展望</h2>
+到了这里，其实我们学习隐马尔可夫模型才刚刚开始，因为我们这个小研究有以下的不足。
+<ol>
+<li>状态选择过于粗糙</li>
+<li>隐藏状态数目选择值得推敲</li>
+<li>这里获得的隐藏状态效果并不明显</li>
+</ol>
+所以接下来，针对隐马尔可夫模型，还需要做以下的改进。
+<ol>
+<li>更改用于训练模型的状态</li>
+<li>选择合适的隐藏状态数目</li>
+</ol>
+
+
+<h2>参考资料</h2>
+1. 量价特征因子：基于HMM的多空策略 https://mp.weixin.qq.com/s/67A3swMZLaHc0r4ybG7O6g<br>
+2. 隐马尔科夫模型HMM（一）HMM模型 https://www.cnblogs.com/pinard/p/6945257.html<br>
+3. 单特征因子的隐马尔可夫模型在商品期货中的应用 https://zhuanlan.zhihu.com/p/34533310><br>
+4. https://uqer.io/v3/community/share/56ec30bf228e5b887be50b35<br>
+5. https://www.cnblogs.com/pinard/p/7001397.html
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantitative-trading/" rel="tag"># Quantitative trading</a>
+          
+            <a href="/tags/qsq/" rel="tag"># qsq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/07/qsq-paper3/" rel="next" title="qsq加密货币量化系统： 双均线策略">
+                <i class="fa fa-chevron-left"></i> qsq加密货币量化系统： 双均线策略
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/qiushui.jpg" alt="秋水">
+            
+              <p class="site-author-name" itemprop="name">秋水</p>
+              <p class="site-description motion-element" itemprop="description">闭口治世之贤良，张口乱世之枭雄</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">隐马尔科夫模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">模型实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">hmm模型的三个基本问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">简短总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">策略实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">增加hmm类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">训练模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">获取数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">挑选特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">开始训练</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">进行回测</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结和展望</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋水</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://qiushui777.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://qiushui777.github.io/2019/10/06/qsq-paper4-basic-hmmlean/';
+          this.page.identifier = '2019/10/06/qsq-paper4-basic-hmmlean/';
+          this.page.title = 'qsq加密货币量化系统： 隐马尔可夫模型';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://qiushui777.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
