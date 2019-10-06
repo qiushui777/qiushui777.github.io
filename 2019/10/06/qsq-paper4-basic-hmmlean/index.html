@@ -79,20 +79,20 @@
 
 
 
-<meta name="description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  隐马尔科夫模型 模型实例 刘">
+<meta name="description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  项目地址 https://g">
 <meta name="keywords" content="Quantitative trading,qsq">
 <meta property="og:type" content="article">
 <meta property="og:title" content="qsq加密货币量化系统： 隐马尔可夫模型">
 <meta property="og:url" content="https://qiushui777.github.io/2019/10/06/qsq-paper4-basic-hmmlean/index.html">
 <meta property="og:site_name" content="秋水">
-<meta property="og:description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  隐马尔科夫模型 模型实例 刘">
+<meta property="og:description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  项目地址 https://g">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper4/output_33_0.png">
 <meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper4/output_35_0.png">
-<meta property="og:updated_time" content="2019-10-06T13:34:18.468Z">
+<meta property="og:updated_time" content="2019-10-06T13:39:32.498Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="qsq加密货币量化系统： 隐马尔可夫模型">
-<meta name="twitter:description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  隐马尔科夫模型 模型实例 刘">
+<meta name="twitter:description" content="前言  在前几周的业余时间，我了解了隐马尔可夫模型，并阅读了一些前人在这个模型上的实践。这些实践都很有启发意义，但是对于我个人而已在以下几点上没有满足我的预期。  很多代码没有开源亦或者依赖特定的平台 部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少  所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。  项目地址 https://g">
 <meta name="twitter:image" content="https://qiushui777.github.io/images/qsq_paper4/output_33_0.png">
 
 
@@ -346,6 +346,9 @@
 <li>部分专讲理论，部分专门讲实践，两者都照顾到的似乎很少</li>
 </ol>
 所以这里我准备先介绍隐马尔科夫模型，接下来在qsq中实现这个模型，并希望能作为一个基础模块来让使用者轻松调用。
+
+<h2>项目地址</h2>
+https://github.com/qiushui777/qsq
 
 <h2>隐马尔科夫模型</h2>
 <h3>模型实例</h3>
@@ -955,6 +958,11 @@
 </ol>
 
 
+<h2>交流方式</h2>
+email: xudong_shao#hotmail.com <br>
+qq群: 742593185
+
+
 <h2>参考资料</h2>
 1. 量价特征因子：基于HMM的多空策略 https://mp.weixin.qq.com/s/67A3swMZLaHc0r4ybG7O6g<br>
 2. 隐马尔科夫模型HMM（一）HMM模型 https://www.cnblogs.com/pinard/p/6945257.html<br>
@@ -1135,7 +1143,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">隐马尔科夫模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">模型实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">hmm模型的三个基本问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">简短总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">策略实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">增加hmm类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">训练模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">获取数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">挑选特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">开始训练</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">进行回测</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结和展望</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">项目地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">隐马尔科夫模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">模型实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">hmm模型的三个基本问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">简短总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">策略实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">增加hmm类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">训练模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">获取数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">挑选特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-text">开始训练</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">进行回测</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结和展望</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">交流方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
