@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言  在先前的几篇文章中我在自己的量化框架中实现了几种策略，但是这些策略并没有经过实战的检验。而想要通过自动交易来参与实战，首先我就得在我的框架中加入api接口，连入交易所进行交易。所以，这里我在qsq中加入了火币的api，并且通过过程的截图给大家演示如何自动化交易。 项目地址 https://github.com/qiushui777/qsq  本文位于qs_papers目录下，建议使用jup">
+<meta property="og:type" content="article">
+<meta property="og:title" content="qsq加密货币量化系统：使用火币api进行自动交易">
+<meta property="og:url" content="https://qiushui777.github.io/2019/10/22/qsq-paper5-huobi/index.html">
+<meta property="og:site_name" content="秋水">
+<meta property="og:description" content="前言  在先前的几篇文章中我在自己的量化框架中实现了几种策略，但是这些策略并没有经过实战的检验。而想要通过自动交易来参与实战，首先我就得在我的框架中加入api接口，连入交易所进行交易。所以，这里我在qsq中加入了火币的api，并且通过过程的截图给大家演示如何自动化交易。 项目地址 https://github.com/qiushui777/qsq  本文位于qs_papers目录下，建议使用jup">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper5/1.png">
+<meta property="og:image" content="https://qiushui777.github.io/images/qsq_paper5/2.png">
+<meta property="og:updated_time" content="2019-10-22T15:08:37.253Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="qsq加密货币量化系统：使用火币api进行自动交易">
+<meta name="twitter:description" content="前言  在先前的几篇文章中我在自己的量化框架中实现了几种策略，但是这些策略并没有经过实战的检验。而想要通过自动交易来参与实战，首先我就得在我的框架中加入api接口，连入交易所进行交易。所以，这里我在qsq中加入了火币的api，并且通过过程的截图给大家演示如何自动化交易。 项目地址 https://github.com/qiushui777/qsq  本文位于qs_papers目录下，建议使用jup">
+<meta name="twitter:image" content="https://qiushui777.github.io/images/qsq_paper5/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qiushui777.github.io/2019/10/22/qsq-paper5-huobi/">
+
+
+
+
+
+  <title>qsq加密货币量化系统：使用火币api进行自动交易 | 秋水</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秋水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2019/10/22/qsq-paper5-huobi/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="秋水">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/qiushui.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">qsq加密货币量化系统：使用火币api进行自动交易</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-22T23:04:26+08:00">
+                2019-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/22/qsq-paper5-huobi/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/22/qsq-paper5-huobi/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2>前言</h2>
+
+<p>在先前的几篇文章中我在自己的量化框架中实现了几种策略，但是这些策略并没有经过实战的检验。而想要通过自动交易来参与实战，首先我就得在我的框架中加入api接口，连入交易所进行交易。所以，这里我在qsq中加入了火币的api，并且通过过程的截图给大家演示如何自动化交易。</p>
+<h2>项目地址</h2>
+https://github.com/qiushui777/qsq
+
+<p>本文位于qs_papers目录下，建议使用jupter notebook打开学习。</p>
+<h2>火币接口</h2>
+实现火币接口的过程中，我使用了火币的python SDK，所以使用者需要在这个github地址安装sdk。<br>
+https://github.com/HuobiRDCenter/huobi_Python<br>
+同时我也参考了火币api文档。<br>
+huobiapi.github.io/docs/spot/v1/cn/<br>
+最终在qsq/ThirdptQs中添加了QsHuobi类，关键的几个函数如下。
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ..CoreQs <span class="keyword">import</span> QsEnv</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> huobi <span class="keyword">import</span> RequestClient, SubscriptionClient</span><br><span class="line"><span class="keyword">from</span> huobi.base.printobject <span class="keyword">import</span> PrintMix</span><br><span class="line"><span class="keyword">from</span> huobi.model <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> configparser <span class="keyword">import</span> ConfigParser</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">QsHuobi</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    qsq系统提供的火币接口，可通过此接口获取数据和交易等</span></span><br><span class="line"><span class="string">    要想进行交易，必须在qs/config/config.ini中设置好自己的火币api密钥</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_24h_trade_statistics</span><span class="params">(self, pair=<span class="string">"btcusdt"</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        param: pair 想要获取的交易对，默认为btcusdt</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        获取24小时的市场数据，返回结构体成员包括有</span></span><br><span class="line"><span class="string">        timestamp, high, low, open, close, volume</span></span><br><span class="line"><span class="string">        可使用trade_statistics.high这样的方式获取对应数据</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_latest_candlestick</span><span class="params">(self, pair=<span class="string">"btcusdt"</span>, interval=CandlestickInterval.MIN1, size=<span class="number">10</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        param: pair 想要获取的交易对，默认为btcusdt</span></span><br><span class="line"><span class="string">        param: interval 时间间隔，默认为MIN1, 可选有MIN1 MIN5 MIN15 MIN30 MIN60 DAY1 MON1 WEEK1 YEAR1 </span></span><br><span class="line"><span class="string">        param: size 获取的数据条数，默认为10,选择范围为[1,2000]</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        获取最近一段时间的K线数据，返回一个list，这个list的每一项的结构体成员包括有</span></span><br><span class="line"><span class="string">        timestamp, high, low, open, close, volume</span></span><br><span class="line"><span class="string">        可使用member.high这样的方式获取对应数据</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_exchange_currencies</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        获取火币所有交易币种</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_exchange_info</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        获取交易所信息，返回交易对和支持币种，使用案例</span></span><br><span class="line"><span class="string">        for symbol in exchange_info.symbol_list:</span></span><br><span class="line"><span class="string">            print(symbol.symbol)</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">        for currency in exchange_info.currencies:</span></span><br><span class="line"><span class="string">            print(currency)</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_fee_rate</span><span class="params">(self, symbol=<span class="string">"btcusdt"</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        获取交易手续费，返回一个FeeRate对象，成员包括</span></span><br><span class="line"><span class="string">        symbol 对应币种 maker_fee 卖方手续费 taker_fee 买方手续费</span></span><br><span class="line"><span class="string">        实际使用中，symbol也为一个费率</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_historical_orders</span><span class="params">(self, symbol=<span class="string">"ethusdt"</span>, order_state=OrderState.CANCELED, order_type=None, start_date=None, end_date=None, start_id=None, size=None)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        param: symbol 符号(必须)</span></span><br><span class="line"><span class="string">        param: order_state 订单状态(必须)，可选参数有SUBMITTED PARTIAL_FILLED CANCELLING PARTIAL_CANCELED FILLED CANCELED INVALID</span></span><br><span class="line"><span class="string">        param: order_type 订单类型(可选)，可选参数有SELL_LIMIT BUY_LIMIT BUY_MARKET SELL_MARKET BUY_IOC SELL_IOC BUY_LIMIT_MAKER SELL_LIMIT_MAKER BUY_STOP_LIMIT SELL_STOP_LIMIT INVALID </span></span><br><span class="line"><span class="string">        param: start_date 开始日期(可选) 格式为 yyyy-mm-dd</span></span><br><span class="line"><span class="string">        param: end_date 结束日期(可选) 格式为 yyyy-mm-dd</span></span><br><span class="line"><span class="string">        param: start_id(可选) 订单起始id，暂时忽略</span></span><br><span class="line"><span class="string">        param: size(可选) 大小，暂时忽略</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">        获取历史订单</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_historical_trade</span><span class="params">(self, symbol=<span class="string">"btcusdt"</span>, size=<span class="number">5</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        param: symbol 符号(必须)</span></span><br><span class="line"><span class="string">        param: size 交易列表的大小(必须)</span></span><br><span class="line"><span class="string">        获取历史交易数据，返回trade_list对象列表，每个对象有如下几个成员</span></span><br><span class="line"><span class="string">        timestamp trade_id price amount direction</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_market_trade</span><span class="params">(self,symbol=<span class="string">"btcusdt"</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        param: symbol 符号，默认为btcusdt</span></span><br><span class="line"><span class="string">        获取当前市场上的交易，返回一个trade对象组成的tradelist列表，每个trade对象的成员有</span></span><br><span class="line"><span class="string">        price, amount, trade_id timestamp, direction</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_open_orders</span><span class="params">(self,symbol=<span class="string">"htusdt"</span>, account_type=AccountType.SPOT, direct=<span class="string">"next"</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        获取自己账户当前开放的交易,返回order数组，每个Order对象有</span></span><br><span class="line"><span class="string">        order_id, symbol, price, amount, account_type, created_timestamp, order_type, filled_amount, filled_cash_amount, filled_fees, source, state</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_order_recent_48hour</span><span class="params">(self,symbol=None, start_time=None, end_time=None, size=None, direct=None)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        获取自己账户48小时内的交易记录，返回order数组</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_price_depth</span><span class="params">(self,symbol,size)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        获取当前市场的交易深度，symbol 为交易对，size为头部的几个交易，一个用例如下</span></span><br><span class="line"><span class="string">        i = 0</span></span><br><span class="line"><span class="string">        for entry in depth.bids:</span></span><br><span class="line"><span class="string">            i = i + 1</span></span><br><span class="line"><span class="string">            print(str(i) + ": price: " + str(entry.price) + ", amount: " + str(entry.amount))</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        i = 0</span></span><br><span class="line"><span class="string">        for entry in depth.asks:</span></span><br><span class="line"><span class="string">            i = i + 1</span></span><br><span class="line"><span class="string">            print(str(i) + ": price: " + str(entry.price) + ", amount: " + str(entry.amount))</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">order</span><span class="params">(self, symbol=<span class="string">"btcusdt"</span>, account_type=AccountType.SPOT, order_type=OrderType.SELL_LIMIT, amount=<span class="number">1.0</span>, price=None, stop_price=None, operator=None)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        下单函数，谨慎使用</span></span><br><span class="line"><span class="string">        必须提供的参数为symbol,account_type,order_type,amount</span></span><br><span class="line"><span class="string">        param: account_type  账户类型，包括有SPOT MARGIN OTC POINT </span></span><br><span class="line"><span class="string">        param: order_type 订单类型，包括有SELL_LIMIT BUY_LIMIT BUY_MARKET SELL_MARKET BUY_IOC SELL_IOC</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cancle_order</span><span class="params">(self, symbol=<span class="string">"btcusdt"</span>, order_id=<span class="string">"00000"</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        取消某笔订单</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_order</span><span class="params">(self, symbol=<span class="string">"btcusdt"</span>, order_id=<span class="string">"000000"</span>)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        根据order_id获取某笔交易,每个Order对象有</span></span><br><span class="line"><span class="string">        order_id, symbol, price, amount, account_type, created_timestamp, order_type, filled_amount, filled_cash_amount, filled_fees, source, state</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_order_by_client_order_id</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        根据client_order_id来获取订单, 每个Order对象有</span></span><br><span class="line"><span class="string">        order_id, symbol, price, amount, account_type, created_timestamp, order_type, filled_amount, filled_cash_amount, filled_fees, source, state</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cancel_client_order</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        根据client_order_id取消某笔交易</span></span><br><span class="line"><span class="string">        """</span></span><br></pre></td></tr></table></figure>
+
+<h2>使用火币api进行交易</h2>
+<h3>获取火币交易key</h3>
+进入火币账户，点击创建api，如下。你可以根据自己的需求来选择这个api的功能，例如你要交易的话，那个交易的勾必须打上才行。
+
+<p><img src="/images/qsq_paper5/1.png" alt></p>
+<p>获取到密钥后，在C:\Users\你的用户名\qsq\config\config.ini中添加如下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[huobi]</span><br><span class="line">huobiapi_key=***</span><br><span class="line">huobisecret_key=***</span><br><span class="line">client_order_id=12345678</span><br></pre></td></tr></table></figure>
+
+<p>把你获取到的key填到对应位置，这里的client_order_id则是每次交易都需要改变下，每个交易都需要一个不同的id。后面使用QsHuobi类的时候我们动态调整那个对应的类变量就行。</p>
+<h3>进行交易</h3>
+接下来就是实操了，调用order函数来进行交易。恰好我账户里面有几个跌的快归零的比原，所以就用他们来试着交易下。
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="comment"># 使用insert 0即只使用github，避免交叉使用了pip安装的abupy，导致的版本不一致问题</span></span><br><span class="line">sys.path.insert(<span class="number">0</span>, os.path.abspath(<span class="string">'../'</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> qsq <span class="keyword">import</span> QsHuobi</span><br><span class="line"><span class="keyword">from</span> huobi.model <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">qshuobi = QsHuobi()</span><br><span class="line"></span><br><span class="line">order_id = qshuobi.order(symbol=<span class="string">"btmbtc"</span>, account_type=AccountType.SPOT, order_type=OrderType.SELL_MARKET, amount=<span class="number">10</span>)</span><br><span class="line">print(<span class="string">"after order, we have order id: "</span> + str(order_id))</span><br></pre></td></tr></table></figure>
+
+<h3>查看交易结果</h3>
+
+<p>这个时候登陆我们的账户看下交易。</p>
+<p><img src="/images/qsq_paper5/2.png" alt></p>
+<p>我们成功用火币api完成了一次交易，即将走上量化交易实现财富自由的白日梦了！</p>
+<h2>总结</h2>
+这次我们实现了火币的api接口和自动交易。然而，先前我实现的几个策略并没有得到比较好的优化，所以后面的文章中，我会对先前的策略或者一些新的策略进行更深入的研究，然后进行实战。
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/06/qsq-paper4-basic-hmmlean/" rel="next" title="qsq加密货币量化系统： 隐马尔可夫模型">
+                <i class="fa fa-chevron-left"></i> qsq加密货币量化系统： 隐马尔可夫模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/qiushui.jpg" alt="秋水">
+            
+              <p class="site-author-name" itemprop="name">秋水</p>
+              <p class="site-description motion-element" itemprop="description">闭口治世之贤良，张口乱世之枭雄</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">项目地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">火币接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">使用火币api进行交易</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">获取火币交易key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">进行交易</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">查看交易结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋水</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://qiushui777.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://qiushui777.github.io/2019/10/22/qsq-paper5-huobi/';
+          this.page.identifier = '2019/10/22/qsq-paper5-huobi/';
+          this.page.title = 'qsq加密货币量化系统：使用火币api进行自动交易';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://qiushui777.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
