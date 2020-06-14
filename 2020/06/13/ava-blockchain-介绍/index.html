@@ -82,15 +82,15 @@
 <meta name="description" content="前几个月，公司接了ava这个项目，我也参与了其中的审计，这里对其共识进行个简单的介绍。 Ava的亮点就是其共识了，称为avalanche共识。顾名思义，雪崩协议，其共识过程是积少成多，从一个点开始蔓延开来，最后达成共识。观察源码，其实可以看到共识部分包含DAG和blockchain这两块。两者都是用的雪崩协议，只是底层数据结构不同，这里不介绍有向无环图和区块的区别，仅介绍雪崩协议。后面结合源码部分">
 <meta name="keywords" content="Blockchain">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ava blockchain 介绍">
+<meta property="og:title" content="ava blockchain 简介">
 <meta property="og:url" content="https://qiushui777.github.io/2020/06/13/ava-blockchain-介绍/index.html">
 <meta property="og:site_name" content="秋水">
 <meta property="og:description" content="前几个月，公司接了ava这个项目，我也参与了其中的审计，这里对其共识进行个简单的介绍。 Ava的亮点就是其共识了，称为avalanche共识。顾名思义，雪崩协议，其共识过程是积少成多，从一个点开始蔓延开来，最后达成共识。观察源码，其实可以看到共识部分包含DAG和blockchain这两块。两者都是用的雪崩协议，只是底层数据结构不同，这里不介绍有向无环图和区块的区别，仅介绍雪崩协议。后面结合源码部分">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://qiushui777.github.io/images/ava/1.jpg">
-<meta property="og:updated_time" content="2020-06-13T13:21:48.092Z">
+<meta property="og:updated_time" content="2020-06-14T14:15:36.948Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ava blockchain 介绍">
+<meta name="twitter:title" content="ava blockchain 简介">
 <meta name="twitter:description" content="前几个月，公司接了ava这个项目，我也参与了其中的审计，这里对其共识进行个简单的介绍。 Ava的亮点就是其共识了，称为avalanche共识。顾名思义，雪崩协议，其共识过程是积少成多，从一个点开始蔓延开来，最后达成共识。观察源码，其实可以看到共识部分包含DAG和blockchain这两块。两者都是用的雪崩协议，只是底层数据结构不同，这里不介绍有向无环图和区块的区别，仅介绍雪崩协议。后面结合源码部分">
 <meta name="twitter:image" content="https://qiushui777.github.io/images/ava/1.jpg">
 
@@ -128,7 +128,7 @@
 
 
 
-  <title>ava blockchain 介绍 | 秋水</title>
+  <title>ava blockchain 简介 | 秋水</title>
   
 
 
@@ -272,7 +272,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">ava blockchain 介绍</h1>
+          <h1 class="post-title" itemprop="name headline">ava blockchain 简介</h1>
         
 
         <div class="post-meta">
@@ -347,7 +347,7 @@
 <p>当节点抽出K个节点后，会分别向这几个节点发出请求。它会告诉这些节点自己pref的区块，然后这些节点也会返回他们pref的区块。这个过程就是图中的</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P := [QUERY(v,col)]</span><br></pre></td></tr></table></figure>
 
-<p>拿到来自K个节点的P个返回后，就是要进行统计了。<br>这里对于不同的区块用col（颜色）表示。对于这P个返回，计算各个区块获得投票的次数。这之后的关键有α，β，cnf这三个参数以及一个计数的数组d。需要记得的是，这个α必须大于K/2下取整。<br>如果这些区块中，没有一个获得的投票数大于α，那么这个cnt会被置为0。<br>对于那个获得大于α票数的区块，其对应的数组d中的计数加1。而当前的节点的pref的区块是这个d数组中计数最大的那个。<br>这里β参数的意思是，每个区块连续达到α个投票的次数，一旦这次达到α次数的那个区块不是前一个，那么这个cnt置为1。而一旦这个cnt大雨了β，那么就意味着这个区块被接受了。也就是<br>ACCEPT(col)那里。</p>
+<p>拿到来自K个节点的P个返回后，就是要进行统计了。<br>这里对于不同的区块用col（颜色）表示。对于这P个返回，计算各个区块获得投票的次数。这之后的关键有α，β，cnf这三个参数以及一个计数的数组d。需要记得的是，这个α必须大于K/2下取整。<br>如果这些区块中，没有一个获得的投票数大于α，那么这个cnt会被置为0。<br>对于那个获得大于α票数的区块，其对应的数组d中的计数加1。而当前的节点的pref的区块是这个d数组中计数最大的那个。<br>这里β参数的意思是，每个区块连续达到α个投票的次数大于β就达成共识，一旦这次达到α次数的那个区块不是前一个，那么这个cnt置为1。而一旦这个cnt大于了β，那么就意味着这个区块被接受了。也就是<br>ACCEPT(col)那里。</p>
 <p>可以看下代码中对应的部分。<br><a href="https://github.com/ava-labs/gecko/blob/master/snow/consensus/snowball/tree.go#L402" target="_blank" rel="noopener">https://github.com/ava-labs/gecko/blob/master/snow/consensus/snowball/tree.go#L402</a></p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> votes.Len() &gt;= u.tree.params.Alpha &#123;</span><br><span class="line">    u.snowball.RecordSuccessfulPoll()</span><br></pre></td></tr></table></figure>
 
@@ -689,7 +689,7 @@
         var disqus_config = function () {
           this.page.url = 'https://qiushui777.github.io/2020/06/13/ava-blockchain-介绍/';
           this.page.identifier = '2020/06/13/ava-blockchain-介绍/';
-          this.page.title = 'ava blockchain 介绍';
+          this.page.title = 'ava blockchain 简介';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://qiushui777.disqus.com/embed.js';
