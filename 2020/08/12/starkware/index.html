@@ -79,20 +79,22 @@
 
 
 
-<meta name="description" content="前几个月，公司接了ava这个项目，我也参与了其中的审计，这里对其共识进行个简单的介绍。 Ava的亮点就是其共识了，称为avalanche共识。顾名思义，雪崩协议，其共识过程是积少成多，从一个点开始蔓延开来，最后达成共识。观察源码，其实可以看到共识部分包含DAG和blockchain这两块。两者都是用的雪崩协议，只是底层数据结构不同，这里不介绍有向无环图和区块的区别，仅介绍雪崩协议。后面结合源码部分">
+<meta name="description" content="前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。 ht">
 <meta name="keywords" content="Blockchain">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ava blockchain 简介">
-<meta property="og:url" content="https://qiushui777.github.io/2020/06/13/ava-blockchain-介绍/index.html">
+<meta property="og:title" content="starkware 零知识证明简介">
+<meta property="og:url" content="https://qiushui777.github.io/2020/08/12/starkware/index.html">
 <meta property="og:site_name" content="秋水">
-<meta property="og:description" content="前几个月，公司接了ava这个项目，我也参与了其中的审计，这里对其共识进行个简单的介绍。 Ava的亮点就是其共识了，称为avalanche共识。顾名思义，雪崩协议，其共识过程是积少成多，从一个点开始蔓延开来，最后达成共识。观察源码，其实可以看到共识部分包含DAG和blockchain这两块。两者都是用的雪崩协议，只是底层数据结构不同，这里不介绍有向无环图和区块的区别，仅介绍雪崩协议。后面结合源码部分">
+<meta property="og:description" content="前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。 ht">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://qiushui777.github.io/images/ava/1.jpg">
-<meta property="og:updated_time" content="2020-06-14T14:15:36.948Z">
+<meta property="og:image" content="https://qiushui777.github.io/images/stark/1.png">
+<meta property="og:image" content="https://qiushui777.github.io/images/stark/3.png">
+<meta property="og:image" content="https://qiushui777.github.io/images/stark/2.png">
+<meta property="og:updated_time" content="2020-08-12T14:47:29.397Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ava blockchain 简介">
-<meta name="twitter:description" content="前几个月，公司接了ava这个项目，我也参与了其中的审计，这里对其共识进行个简单的介绍。 Ava的亮点就是其共识了，称为avalanche共识。顾名思义，雪崩协议，其共识过程是积少成多，从一个点开始蔓延开来，最后达成共识。观察源码，其实可以看到共识部分包含DAG和blockchain这两块。两者都是用的雪崩协议，只是底层数据结构不同，这里不介绍有向无环图和区块的区别，仅介绍雪崩协议。后面结合源码部分">
-<meta name="twitter:image" content="https://qiushui777.github.io/images/ava/1.jpg">
+<meta name="twitter:title" content="starkware 零知识证明简介">
+<meta name="twitter:description" content="前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。 ht">
+<meta name="twitter:image" content="https://qiushui777.github.io/images/stark/1.png">
 
 
 
@@ -122,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="https://qiushui777.github.io/2020/06/13/ava-blockchain-介绍/">
+  <link rel="canonical" href="https://qiushui777.github.io/2020/08/12/starkware/">
 
 
 
 
 
-  <title>ava blockchain 简介 | 秋水</title>
+  <title>starkware 零知识证明简介 | 秋水</title>
   
 
 
@@ -255,7 +257,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2020/06/13/ava-blockchain-介绍/">
+    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2020/08/12/starkware/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="秋水">
@@ -272,7 +274,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">ava blockchain 简介</h1>
+          <h1 class="post-title" itemprop="name headline">starkware 零知识证明简介</h1>
         
 
         <div class="post-meta">
@@ -284,8 +286,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-13T21:18:09+08:00">
-                2020-06-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-12T22:41:34+08:00">
+                2020-08-12
               </time>
             
 
@@ -303,8 +305,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/06/13/ava-blockchain-介绍/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/06/13/ava-blockchain-介绍/" itemprop="commentCount"></span>
+                <a href="/2020/08/12/starkware/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/08/12/starkware/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -337,25 +339,29 @@
       
 
       
-        <p>前几个月，公司接了ava这个项目，我也参与了其中的审计，这里对其共识进行个简单的介绍。</p>
-<p>Ava的亮点就是其共识了，称为avalanche共识。顾名思义，雪崩协议，其共识过程是积少成多，从一个点开始蔓延开来，最后达成共识。观察源码，其实可以看到共识部分包含DAG和blockchain这两块。两者都是用的雪崩协议，只是底层数据结构不同，这里不介绍有向无环图和区块的区别，仅介绍雪崩协议。后面结合源码部分也是通过block结构的snowman部分来介绍。</p>
-<p><a href="https://files.avalabs.org/papers/consensus.pdf" target="_blank" rel="noopener">https://files.avalabs.org/papers/consensus.pdf</a><br>白皮书</p>
-<p><img src="/images/ava/1.jpg" alt></p>
-<p>结合白皮书上的一张流程图来讲解。<br>共识的开始，节点会自己有一个pref的区块。这个节点会从validator中随机抽出一些节点参与共识，这个抽取的工程虽然是随机的，但是和抵押的比例成正比，抵押的多，这个随机过程中被抽到的比例就越高。这个过程就是图中的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">K = SAMPLE(N/u,k)</span><br></pre></td></tr></table></figure>
+        <p>前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。</p>
+<p><a href="https://starkware.co/stark101-onlinecourse/" target="_blank" rel="noopener">https://starkware.co/stark101-onlinecourse/</a><br><a href="https://medium.com/starkware" target="_blank" rel="noopener">https://medium.com/starkware</a></p>
+<h2>概述</h2>
+先简单讲下stark协议整体概述吧。协议中有prover和verifier两个角色。prover要向verifier证明自己知道某个解。 首先，我们拿到一个问题，叫做statement。通过数学手段将这个statement转为多项式，将对这个statement的证明转为对多项式的证明。 这个证明其实是证明这个多项式的阶小于某个值。prover会把这个多项式扩展到一个较大的域上，计算域上取的所有点的一个默克尔树的根， 然后prover在最后证明的过程中，verifier在多项式上取几个点（这么说可能数学上不大精确），这个取点的过程必须是随机的。取出的点给prover。prover通过返回这些点的邻居点就能让verifier计算出默克尔树的根。如果这个根和那个先前发过去的根一样，那么就认为是证明成功了。
 
-<p>当节点抽出K个节点后，会分别向这几个节点发出请求。它会告诉这些节点自己pref的区块，然后这些节点也会返回他们pref的区块。这个过程就是图中的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P := [QUERY(v,col)]</span><br></pre></td></tr></table></figure>
+<h2>详述</h2>
+这里具体的过程我们就用stark oneline course的ppt来做一些讲解。
 
-<p>拿到来自K个节点的P个返回后，就是要进行统计了。<br>这里对于不同的区块用col（颜色）表示。对于这P个返回，计算各个区块获得投票的次数。这之后的关键有α，β，cnf这三个参数以及一个计数的数组d。需要记得的是，这个α必须大于K/2下取整。<br>如果这些区块中，没有一个获得的投票数大于α，那么这个cnt会被置为0。<br>对于那个获得大于α票数的区块，其对应的数组d中的计数加1。而当前的节点的pref的区块是这个d数组中计数最大的那个。<br>这里β参数的意思是，每个区块连续达到α个投票的次数大于β就达成共识，一旦这次达到α次数的那个区块不是前一个，那么这个cnt置为1。而一旦这个cnt大于了β，那么就意味着这个区块被接受了。也就是<br>ACCEPT(col)那里。</p>
-<p>可以看下代码中对应的部分。<br><a href="https://github.com/ava-labs/gecko/blob/master/snow/consensus/snowball/tree.go#L402" target="_blank" rel="noopener">https://github.com/ava-labs/gecko/blob/master/snow/consensus/snowball/tree.go#L402</a></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> votes.Len() &gt;= u.tree.params.Alpha &#123;</span><br><span class="line">    u.snowball.RecordSuccessfulPoll()</span><br></pre></td></tr></table></figure>
+<h3>LDE（low degree extension）</h3>
 
-<p>来自α的限制。</p>
-<p><a href="https://github.com/ava-labs/gecko/blob/master/snow/consensus/snowball/binary_snowflake.go#L48" target="_blank" rel="noopener">https://github.com/ava-labs/gecko/blob/master/snow/consensus/snowball/binary_snowflake.go#L48</a></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sf.finalized = sf.confidence &gt;= sf.beta</span><br></pre></td></tr></table></figure>
+<p><img src="/images/stark/1.png" alt></p>
+<p>用这张图做例子吧。存在一个数列，这个数列的第1000项是100，且每项之间有已知的规律，也就是说，我们知道了第一和二项就能一直往后算。Prover要证明的是，自己知道这个第一二项，使得第1000项是100。于是乎，prover就拿出一些点，这些点都满足这个数列的规律。可以理解是上面的红点。然后，数学部分就来了，通过一个快速傅里叶变换出现这些同样满足规律，在更大域上的绿点。</p>
+<h3>Commitment</h3>
 
-<p>β参数的限制。</p>
+<p><img src="/images/stark/3.png" alt></p>
+<p>事实上，我们要证明的那个数列，满足一定的规律，这些规律可以组合成Compositional Polynomial，我的理解是上面那个CP是通过限制和Trace生成的。生成以后，就是通过它的Fri协议消除阶数。因为实际上的那个trace或者说CP这一层很大，把他的阶数往下消除后，计算每一层的Root，发给verifier。看下源码的话，感觉这里就是把变量x变成x^2实现这个效果。Prover这边会将生成的每一层的Merkle root发送给verifier。</p>
+<h3>Decommitment</h3>
+
+<p><img src="/images/stark/2.png" alt></p>
+<p>在Decommitment阶段，verifier随机选点，例如这里选了cp0(x)，那个prover就会把这个点到root的路径上的邻居节点发到verifier那边。通过这些点，verifier就可以计算出每一层的root了。进而和最初prover发过来的比较就能判断真伪。</p>
+<p>而实际上，这个过程是交互的，每一层verifier都要选点，但是实现者希望这个过程不是交互的，就用了Fiat–Shamir heuristic将这个过程转为非交互的，简单来说就是通过一个哈希和最初的一个种子来选点。</p>
+<p><a href="https://en.wikipedia.org/wiki/Fiat%E2%80%93Shamir_heuristic" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Fiat%E2%80%93Shamir_heuristic</a></p>
+<p>大致的过程就如上，实际上代码和理论在审计完成后我也有许多的不解，甚至于开始理解的现在回忆都有些迷糊了。密码学果然还是太难了。</p>
 
       
     </div>
@@ -386,8 +392,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/01/23/年轮/" rel="next" title="年轮">
-                <i class="fa fa-chevron-left"></i> 年轮
+              <a href="/2020/07/24/gdi-lib-fuzzing/" rel="next" title="windows 二进制 -- gdi lib fuzzing">
+                <i class="fa fa-chevron-left"></i> windows 二进制 -- gdi lib fuzzing
               </a>
             
           </div>
@@ -395,10 +401,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/07/24/gdi-lib-fuzzing/" rel="prev" title="windows 二进制 -- gdi lib fuzzing">
-                windows 二进制 -- gdi lib fuzzing <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -460,8 +462,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -514,6 +525,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">详述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">LDE（low degree extension）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">Commitment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">Decommitment</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -691,9 +718,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://qiushui777.github.io/2020/06/13/ava-blockchain-介绍/';
-          this.page.identifier = '2020/06/13/ava-blockchain-介绍/';
-          this.page.title = 'ava blockchain 简介';
+          this.page.url = 'https://qiushui777.github.io/2020/08/12/starkware/';
+          this.page.identifier = '2020/08/12/starkware/';
+          this.page.title = 'starkware 零知识证明简介';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://qiushui777.disqus.com/embed.js';
