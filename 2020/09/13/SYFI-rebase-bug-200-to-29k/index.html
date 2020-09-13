@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="This morning, Yannick sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic last month and my compan">
+<meta name="description" content="This morning, Yannick(twitter:@YannickCrypto) sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic">
 <meta name="keywords" content="Blockchain,ethereum,Defi">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SYFI rebase bug: 200$ to 29k$">
 <meta property="og:url" content="https://qiushui777.github.io/2020/09/13/SYFI-rebase-bug-200-to-29k/index.html">
 <meta property="og:site_name" content="秋水">
-<meta property="og:description" content="This morning, Yannick sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic last month and my compan">
+<meta property="og:description" content="This morning, Yannick(twitter:@YannickCrypto) sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-09-13T08:05:32.417Z">
+<meta property="og:updated_time" content="2020-09-13T11:23:33.149Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SYFI rebase bug: 200$ to 29k$">
-<meta name="twitter:description" content="This morning, Yannick sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic last month and my compan">
+<meta name="twitter:description" content="This morning, Yannick(twitter:@YannickCrypto) sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic">
 
 
 
@@ -335,7 +335,7 @@
       
 
       
-        <p>This morning, Yannick sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic last month and my company Peckshield has a blog post on it(<a href="https://medium.com/@peckshield/yam-incident-root-cause-analysis-f3fb2213af53" target="_blank" rel="noopener">post here</a>). So I spent some time this afternoon to read the source code of YAM and uniswap to understand the rebase logic. Obviously, the bug in SYFI is that it didn’t call the uniswap pool’s <code>sync()</code> function after rebase. </p>
+        <p>This morning, Yannick(twitter:@YannickCrypto) sent a tx link showing that some guy made about 29k$ from a 200$ trade. And it’s probably a bug of SYFI rebase logic. YAM happened to have a rebase logic last month and my company Peckshield has a blog post on it(<a href="https://medium.com/@peckshield/yam-incident-root-cause-analysis-f3fb2213af53" target="_blank" rel="noopener">post here</a>). So I spent some time this afternoon to read the source code of YAM and uniswap to understand the rebase logic. Obviously, the bug in SYFI is that it didn’t call the uniswap pool’s <code>sync()</code> function after rebase. </p>
 <p>Let’s take a look at the two txs first.</p>
 <p><a href="https://etherscan.io/tx/0xed33e727dd5b2f8e5164f6e15dabc1923652f2e933645378a87c45bf33c4e59a" target="_blank" rel="noopener">https://etherscan.io/tx/0xed33e727dd5b2f8e5164f6e15dabc1923652f2e933645378a87c45bf33c4e59a</a></p>
 <p>This tx, the guy swapped 0.5 Ether for 2.014585411 SYFI. And after rebase, he got 15,551.072978099 SYFI, then he just swapped all the SYFI for eth and got 747 Ether here.</p>
