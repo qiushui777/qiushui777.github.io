@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Blockchain,">
+  <meta name="keywords" content="Blockchain,ethereum,Defi,">
 
 
 
@@ -79,22 +79,18 @@
 
 
 
-<meta name="description" content="前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。 ht">
-<meta name="keywords" content="Blockchain">
+<meta name="description" content="I’ve been working on uniswap front runners for around 4 months. And I’d love to share some interesting points here. First of all, shout out to Yannick(twitter:@YannickCrypto). He has been helping me w">
+<meta name="keywords" content="Blockchain,ethereum,Defi">
 <meta property="og:type" content="article">
-<meta property="og:title" content="starkware 零知识证明简介">
-<meta property="og:url" content="https://qiushui777.github.io/2020/08/12/starkware/index.html">
+<meta property="og:title" content="uniswap front runners and arbs">
+<meta property="og:url" content="https://qiushui777.github.io/2021/02/09/uniswap-front-runners-and-arbs/index.html">
 <meta property="og:site_name" content="秋水">
-<meta property="og:description" content="前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。 ht">
+<meta property="og:description" content="I’ve been working on uniswap front runners for around 4 months. And I’d love to share some interesting points here. First of all, shout out to Yannick(twitter:@YannickCrypto). He has been helping me w">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://qiushui777.github.io/images/stark/1.png">
-<meta property="og:image" content="https://qiushui777.github.io/images/stark/3.png">
-<meta property="og:image" content="https://qiushui777.github.io/images/stark/2.png">
-<meta property="og:updated_time" content="2020-08-12T14:47:29.397Z">
+<meta property="og:updated_time" content="2021-02-09T11:43:49.851Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="starkware 零知识证明简介">
-<meta name="twitter:description" content="前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。 ht">
-<meta name="twitter:image" content="https://qiushui777.github.io/images/stark/1.png">
+<meta name="twitter:title" content="uniswap front runners and arbs">
+<meta name="twitter:description" content="I’ve been working on uniswap front runners for around 4 months. And I’d love to share some interesting points here. First of all, shout out to Yannick(twitter:@YannickCrypto). He has been helping me w">
 
 
 
@@ -124,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://qiushui777.github.io/2020/08/12/starkware/">
+  <link rel="canonical" href="https://qiushui777.github.io/2021/02/09/uniswap-front-runners-and-arbs/">
 
 
 
 
 
-  <title>starkware 零知识证明简介 | 秋水</title>
+  <title>uniswap front runners and arbs | 秋水</title>
   
 
 
@@ -257,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2020/08/12/starkware/">
+    <link itemprop="mainEntityOfPage" href="https://qiushui777.github.io/2021/02/09/uniswap-front-runners-and-arbs/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="秋水">
@@ -274,7 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">starkware 零知识证明简介</h1>
+          <h1 class="post-title" itemprop="name headline">uniswap front runners and arbs</h1>
         
 
         <div class="post-meta">
@@ -286,8 +282,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-12T22:41:34+08:00">
-                2020-08-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-09T18:09:57+08:00">
+                2021-02-09
               </time>
             
 
@@ -305,8 +301,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/08/12/starkware/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/08/12/starkware/" itemprop="commentCount"></span>
+                <a href="/2021/02/09/uniswap-front-runners-and-arbs/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/02/09/uniswap-front-runners-and-arbs/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -339,29 +335,43 @@
       
 
       
-        <p>前段时间公司接了starkware的审计项目，对其零知识证明实现进行深入的检查。坦白说，这方面的理解非常困难，因为我自己本身密码学的基础比较薄弱，而且项目目前没有结合实际的区块链背景，代码实现还是在数学层面，所以其中困难可想而知。具体发现的问题这里不提，公司的公众号上应该会发，这里我介绍下zk-stark的算法，重点参考的文献就是他们的online-course和medium文章。链接如下。</p>
-<p><a href="https://starkware.co/stark101-onlinecourse/" target="_blank" rel="noopener">https://starkware.co/stark101-onlinecourse/</a><br><a href="https://medium.com/starkware" target="_blank" rel="noopener">https://medium.com/starkware</a></p>
-<h2>概述</h2>
-先简单讲下stark协议整体概述吧。协议中有prover和verifier两个角色。prover要向verifier证明自己知道某个解。 首先，我们拿到一个问题，叫做statement。通过数学手段将这个statement转为多项式，将对这个statement的证明转为对多项式的证明。 这个证明其实是证明这个多项式的阶小于某个值。prover会把这个多项式扩展到一个较大的域上，计算域上取的所有点的一个默克尔树的根， 然后prover在最后证明的过程中，verifier在多项式上取几个点（这么说可能数学上不大精确），这个取点的过程必须是随机的。取出的点给prover。prover通过返回这些点的邻居点就能让verifier计算出默克尔树的根。如果这个根和那个先前发过去的根一样，那么就认为是证明成功了。
+        <p>I’ve been working on uniswap front runners for around 4 months. And I’d love to share some interesting points here. First of all, shout out to Yannick(twitter:@YannickCrypto). He has been helping me with my fr and we have found some really cool stuff together.</p>
+<p>Front runner works like this. When a uniswap swap (swap eth -&gt; token A, the gas fee is 50 gwei) appears on network, you catch it and decode the parameters. The swap will increase the price of token A. So you buy the token A with gas fee 50 + 1/10^9 gwei and sell it with 50 - 1/10^9 gwei. You will probably earn some money here because these 3 txs show in the blk with the order : your buy tx, target tx, your sell tx. I will mention some cases that will let you lose money.</p>
+<p>Arbs just find the possible arb paths that will make them money. For instance, when a uniswap tx appears (swap eth -&gt; token A, the gas fee is 50 gwei), the arb bot may find a path like eth -&gt; B -&gt; A -&gt; eth, and the output eth is more than input. So he will send out a tx with gas price as 50 gwei to make the money.</p>
+<p>These are the basic ideas. So front runners have to be the first one that buy target token A. Otherwise, they can’t get the token A with the cheapest price. Meanwhile, if other frs buy then they also buy the token, the target uniswap token will fail with insufficient output error. In this case, all frs will lose money here. So you can see all those frs bidding up the gas price to be the first one that buys token A. </p>
+<p>So I’d love to share some key notes here.</p>
+<ul>
+<li><p>You have to find some way to save gas. Sometimes, the profit is big for one tx, those frs will bid up the gas price to like 10k. And you will find some bots only pay like 60k gas for the first buy tx while those small bots pay like 120k gas. This is why those big frs earn more money.</p>
+</li>
+<li><p>When you do the first buy tx and later, the target tx (eth -&gt; A) appears, this may create possible profitable arb paths. Like eth -&gt; B -&gt; A -&gt; eth we mentioned before. This will let you lose money. Because the arb actually sells the A in eth-A pool. This decrease the price of A.</p>
+</li>
+<li><p>There are some evil frs that buy token A secretly. And they trigger your fr bot to buy that token. Then sell the token after your buy tx. In this case, you will lose a lot money. This fucking bot here caused me lose some money as I remember. <code>0xCBAeD798a675Fc24077424BbD184A8c1EaA61939</code></p>
+</li>
+</ul>
+<p>I will share some fr and arb addresses here for you. So you can study from them.</p>
+<pre><code>front runners
+0x0000000071e801062eb0544403f66176bba42dc0
+0x00000000002bde777710C370E08Fc83D61b2B8E1  
+0x000000000000084e91743124a982076c59f10084
+0x8be4db5926232bc5b02b841dbede8161924495c4
+0x42d0ba0223700dea8bca7983cc4bf0e000dee772
+0x5f3e759d09e1059e4c46d6984f07cbb36a73bdf1
+0xafe0e7de1ff45bc31618b39dfe42dd9439eebb32   
+0x7e3b29AFCAFf75fa1DBe16cF5C4C1086FE57F4e9  
+0xe39adcd1ce4c4370e65f8e82fe651d4091259620
 
-<h2>详述</h2>
-这里具体的过程我们就用stark oneline course的ppt来做一些讲解。
 
-<h3>LDE（low degree extension）</h3>
-
-<p><img src="/images/stark/1.png" alt></p>
-<p>用这张图做例子吧。存在一个数列，这个数列的第1000项是100，且每项之间有已知的规律，也就是说，我们知道了第一和二项就能一直往后算。Prover要证明的是，自己知道这个第一二项，使得第1000项是100。于是乎，prover就拿出一些点，这些点都满足这个数列的规律。可以理解是上面的红点。然后，数学部分就来了，通过一个快速傅里叶变换出现这些同样满足规律，在更大域上的绿点。</p>
-<h3>Commitment</h3>
-
-<p><img src="/images/stark/3.png" alt></p>
-<p>事实上，我们要证明的那个数列，满足一定的规律，这些规律可以组合成Compositional Polynomial，我的理解是上面那个CP是通过限制和Trace生成的。生成以后，就是通过它的Fri协议消除阶数。因为实际上的那个trace或者说CP这一层很大，把他的阶数往下消除后，计算每一层的Root，发给verifier。看下源码的话，感觉这里就是把变量x变成x^2实现这个效果。Prover这边会将生成的每一层的Merkle root发送给verifier。</p>
-<h3>Decommitment</h3>
-
-<p><img src="/images/stark/2.png" alt></p>
-<p>在Decommitment阶段，verifier随机选点，例如这里选了cp0(x)，那个prover就会把这个点到root的路径上的邻居节点发到verifier那边。通过这些点，verifier就可以计算出每一层的root了。进而和最初prover发过来的比较就能判断真伪。</p>
-<p>而实际上，这个过程是交互的，每一层verifier都要选点，但是实现者希望这个过程不是交互的，就用了Fiat–Shamir heuristic将这个过程转为非交互的，简单来说就是通过一个哈希和最初的一个种子来选点。</p>
-<p><a href="https://en.wikipedia.org/wiki/Fiat%E2%80%93Shamir_heuristic" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Fiat%E2%80%93Shamir_heuristic</a></p>
-<p>大致的过程就如上，实际上代码和理论在审计完成后我也有许多的不解，甚至于开始理解的现在回忆都有些迷糊了。密码学果然还是太难了。</p>
+arbs
+0xc117CeFc617295579FfF745b59c0fE89698B0f59 
+0x7ee8ab2a8d890c000acc87bf6e22e2ad383e23ce
+0x78a55b9b3bbeffb36a43d9905f654d2769dc55e8
+0x860bd2dba9cd475a61e6d1b45e16c365f6d78f66
+0x68A3f74c58FcCE5dAB312B2dfCCeafFcCA953057
+0xCA004470CC29574390217Cc9dfd37919b4DC4681
+0x7c651d7084b4ba899391d2d4d5d3d47fff823351
+0xb8db34f834e9df42f2002ceb7b829dad89d08e14
+0x860bd2dba9Cd475A61E6d1b45e16c365F6D78F66
+0xFA2ea19De0c5eD9D3E1e05325A9983F8ef570459</code></pre><p>Good luck bro. These days too many bots out there and the gas fee is crazy high. So my bot won’t make money anymore. I give it up now. Maybe you can have luck. Who knows.</p>
 
       
     </div>
@@ -381,6 +391,10 @@
           
             <a href="/tags/Blockchain/" rel="tag"># Blockchain</a>
           
+            <a href="/tags/ethereum/" rel="tag"># ethereum</a>
+          
+            <a href="/tags/Defi/" rel="tag"># Defi</a>
+          
         </div>
       
 
@@ -392,8 +406,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/07/24/gdi-lib-fuzzing/" rel="next" title="windows 二进制 -- gdi lib fuzzing">
-                <i class="fa fa-chevron-left"></i> windows 二进制 -- gdi lib fuzzing
+              <a href="/2020/09/13/SYFI-rebase-bug-200-to-29k/" rel="next" title="SYFI rebase bug: 200$ to 29k$">
+                <i class="fa fa-chevron-left"></i> SYFI rebase bug: 200$ to 29k$
               </a>
             
           </div>
@@ -401,10 +415,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/09/13/SYFI-rebase-bug-200-to-29k/" rel="prev" title="SYFI rebase bug: 200$ to 29k$">
-                SYFI rebase bug: 200$ to 29k$ <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -466,17 +476,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -529,22 +530,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-text">详述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">LDE（low degree extension）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">Commitment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text">Decommitment</span></a></li></ol></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -722,9 +707,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://qiushui777.github.io/2020/08/12/starkware/';
-          this.page.identifier = '2020/08/12/starkware/';
-          this.page.title = 'starkware 零知识证明简介';
+          this.page.url = 'https://qiushui777.github.io/2021/02/09/uniswap-front-runners-and-arbs/';
+          this.page.identifier = '2021/02/09/uniswap-front-runners-and-arbs/';
+          this.page.title = 'uniswap front runners and arbs';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://qiushui777.disqus.com/embed.js';
